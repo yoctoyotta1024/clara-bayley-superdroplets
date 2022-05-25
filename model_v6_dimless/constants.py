@@ -63,6 +63,7 @@ cp_v = Cp_v / Cp0
 c_l = C_l / Cp0
 latent_v = Latent_v/(Temp0*Cp0)
 rgas_dry = Rgas_dry/Cp0
+#rgas_v = Rgas_v/Cp0
 
 rho_dry = Rho_dry/Rho0
 rho_l = Rho_l/Rho0
