@@ -1,13 +1,7 @@
 #ifndef SUPERDROPLETCLASSES
 #define SUPERDROPLETCLASSES
 
-// #include <iostream>
 #include <math.h>
-
-
-// using namespace std;
-// using namespace DropletConstants;
-
 
 
 /* constants that belong in parts of equations
@@ -32,7 +26,8 @@ class Common2AllSuperdrops
 
     public:
         
-
+    Common2AllSuperdrops() {}
+    
     Common2AllSuperdrops(double rho_l, double rho_sol, double mr_sol, double ionic)
     // constructor function called everytime instance of class is created
     {
@@ -70,6 +65,8 @@ class Common2AllSuperdrops
 
 
 
+
+
 class Superdrop : public Common2AllSuperdrops
 /* Superdroplet Class. Is child class so each 
       Superdrop instance inherits properties
@@ -84,18 +81,17 @@ class Superdrop : public Common2AllSuperdrops
 
 
     public:
-        int eps;               // multiplicity of droplet
-        double r;              // radius of droplet [m]
-        double m_sol;          // mass of solute dissovled [Kg]
-        double b;              // kohler b factor = 43e-6 m^3/mol * mass_solute/ Mr_solute 
+        double eps;               // multiplicity of droplet
+        double r;              // radius of droplet
+        double m_sol;          // mass of solute dissovled
+        double b;              // kohler b factor
         
+    Superdrop() {}
 
-    Superdrop(int aEps, double aR, double aM_sol, double aRho_l, double aRho_sol, 
+    Superdrop(double aEps, double aR, double aM_sol, double aRho_l, double aRho_sol, 
                 double aMr_sol, double aIonic) : Common2AllSuperdrops(aRho_l, aRho_sol, 
                             aMr_sol, aIonic)
     {
-
-
 
        eps = aEps;       
        r = aR;

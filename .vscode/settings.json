@@ -4,6 +4,11 @@
         "ostream": "cpp",
         "__locale": "cpp",
         "iostream": "cpp",
-        "cmath": "cpp"
+        "cmath": "cpp",
+        "fstream": "cpp",
+        "iosfwd": "cpp",
+        "string": "cpp",
+        "vector": "cpp",
+        "istream": "cpp"
     }
 }

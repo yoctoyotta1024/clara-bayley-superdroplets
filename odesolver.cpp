@@ -87,9 +87,9 @@ int main(){
   N_Vector abstol;
 
   // Output files to write to
-  FILE* SFID;                /* integration stats output file */
-  FILE *YFID = NULL;        /* solution output file */
-  FILE *EFID = NULL;        /* error output file    */
+  FILE* SFID;                // integration stats output file 
+  FILE *YFID = NULL;         // solution output file 
+  FILE *EFID = NULL;         // error output file   
 
   // initialise vectors, matrix and solver
   y = NULL;
