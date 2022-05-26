@@ -17,5 +17,5 @@ dep/odesolver.o: odesolver.cpp \
   /usr/local/sundials-6/include/nvector/nvector_serial.h \
   /usr/local/sundials-6/include/sunmatrix/sunmatrix_dense.h \
   /usr/local/sundials-6/include/sunlinsol/sunlinsol_dense.h \
-  /usr/local/sundials-6/include/sundials/sundials_dense.h \
-  odefunctions.hpp cvodehelpers.hpp
+  /usr/local/sundials-6/include/sundials/sundials_dense.h init.hpp \
+  constants.hpp differentials.hpp cvodehelpers.hpp

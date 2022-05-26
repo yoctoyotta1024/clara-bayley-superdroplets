@@ -1,3 +1,5 @@
+#ifndef CVODEHELPERS
+#define CVODEHELPERS
 
 #include <iostream>
 using namespace std;
@@ -182,3 +184,13 @@ static int check_retval(void *returnvalue, const char *funcname, int opt)
 
   return(0);
 }
+
+
+
+
+
+
+
+
+
+#endif // CVODEHELPERS

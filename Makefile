@@ -77,12 +77,13 @@ clean:
 cleandep:
 	rm -f ${DEPDIR}/${DEPS}
 
-# Cleans everything including removing obj and dep directories
+# Cleans everything including removing csv datafiles, obj and dep directories
 .PHONY: cleanALL
 cleanALL:
 	rm -f ${OBJECTS_DEPENDENCIES}
 	rm -rf ${OBJDIR}
 	rm -rf ${DEPDIR}
 	rm -f ${CPPSOURCES}
+	rm -f *.csv
 
 # --------------------------------------------------------------------------------------- #

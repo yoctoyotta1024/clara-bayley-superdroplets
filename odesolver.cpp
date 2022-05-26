@@ -6,10 +6,16 @@
 #include <sunmatrix/sunmatrix_dense.h> /* access to dense SUNMatrix            */
 #include <sunlinsol/sunlinsol_dense.h> /* access to dense SUNLinearSolver      */
 
-#include "odefunctions.hpp"
+#include "init.hpp"
+#include "constants.hpp"
+#include "differentials.hpp"
+// #include "jacobian.hpp"               // file with Jacobian function (is using optional step 12.)
 #include "cvodehelpers.hpp"
 
 
+
+namespace dlc = dimless_constants;
+using namespace dlc;
 
 
 /* User-defined vector and matrix accessor macros: Ith, IJth 
@@ -20,23 +26,27 @@
   IJth(A,i,j) references the (i,j)th element of the dense matrix A, where
   i and j are in the range [1..NEQ]. 
 */
-#define Ith(v,i)    NV_Ith_S(v,i-1)         /* i-th vector component i=1..NEQ */
-#define IJth(A,i,j) SM_ELEMENT_D(A,i-1,j-1) /* (i,j)-th matrix component i,j=1..NEQ */
+#define Ith(v,i)    NV_Ith_S(v,i-1)         // i-th vector component i=1..NEQ
+//#define IJth(A,i,j) SM_ELEMENT_D(A,i-1,j-1) // (i,j)-th matrix component i,j=1..NEQ
+
+
+
+
 
 
 
 /* Problem Constants */
-#define NEQ   2                /* number of equations  */
-#define Y1    RCONST(0.0)      /* initial y components */
-#define Y2    RCONST(0.01)
-// #define Y3    RCONST(0.0)
-#define RTOL  RCONST(1.0e-6)   /* scalar relative tolerance            */
-#define ATOL1 RCONST(1.0e-6)   /* vector absolute tolerance components */
-#define ATOL2 RCONST(1.0e-6)
-// #define ATOL3 RCONST(1.0e-6)
-#define T0    RCONST(0.0)      /* initial time           */
-#define TSTEP RCONST(0.01)     /* output time factor     */
-#define NOUT  15000              /* number of output times */
+#define NEQ   2                                  // number of equations
+#define Y1    RCONST(p_init/dlc::P0)             // initial y components
+#define Y2    RCONST(temp_init/dlc::TEMP0)
+
+#define RTOL  RCONST(rtol)                       // scalar relative tolerance
+#define ATOL1 RCONST(atols[0])                   // vector absolute tolerance components
+#define ATOL2 RCONST(atols[0])
+
+#define T0    RCONST(tspan[0]/dlc::TIME0)        // initial time (dimensionless)          
+#define TSTEP RCONST(tspan[1]/nout/dlc::TIME0)   // output time step (dimensionless)     
+#define NOUT  nout                               // number of output times
 #define ZERO  RCONST(0.0)
 
 
@@ -49,7 +59,12 @@
  */
 
 int main(){
-  
+
+
+  // TODO de-dimesionalise: w = w/W0
+  // TODO de-dimesionalise: z/(W0*T0))
+
+
   /* Project name and savefile names*/
   std::string PROJNAME, SAVENAME, STATSNAME, savey, saverr;
   PROJNAME = "2-species dynamics problem";
@@ -71,13 +86,10 @@ int main(){
   N_Vector y, e;
   N_Vector abstol;
 
-
-
   // Output files to write to
   FILE* SFID;                /* integration stats output file */
   FILE *YFID = NULL;        /* solution output file */
   FILE *EFID = NULL;        /* error output file    */
-
 
   // initialise vectors, matrix and solver
   y = NULL;
@@ -85,6 +97,7 @@ int main(){
   A = NULL;
   LS = NULL;
   cvode_mem = NULL;
+
 
   /* 0. Create the SUNDIALS context */
   retval = SUNContext_Create(NULL, &sunctx);
@@ -113,7 +126,6 @@ int main(){
 
   Ith(abstol,1) = ATOL1;
   Ith(abstol,2) = ATOL2;
-  // Ith(abstol,3) = ATOL3;
 
   /* 4. Call CVodeCreate to create the solver memory and specify the
    * Backward Differentiation Formula */
@@ -151,9 +163,9 @@ int main(){
   retval = CVodeSetLinearSolver(cvode_mem, LS, A);
   if (check_retval(&retval, "CVodeSetLinearSolver", 1)) return(1);
 
-  /* 12. Set the user-supplied Jacobian function Jac */
-  retval = CVodeSetJacFn(cvode_mem, Jac);
-  if (check_retval(&retval, "CVodeSetJacFn", 1)) return(1);
+  // /* 12. Set the user-supplied Jacobian function Jac (optional) */
+  // retval = CVodeSetJacFn(cvode_mem, Jac);
+  // if (check_retval(&retval, "CVodeSetJacFn", 1)) return(1);
 
   /* 13. Print problem setup and write initial conditions*/
   retval = PrintINITData(PROJNAME, NEQ, y, 

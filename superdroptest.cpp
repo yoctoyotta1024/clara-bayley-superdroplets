@@ -1,10 +1,11 @@
 #include <iostream>
+#include <nvector/nvector_serial.h>    /* access to serial N_Vector            */
 
 #include "superdropletclasses.hpp"
 #include "constants.hpp"
 
 
-namespace cnst = DropletConstants;
+namespace cnst = dimmed_constants;
 using namespace std;
 
 int main(){
@@ -76,6 +77,15 @@ int main(){
     }
     cout << "-- acces attributes of many drops once they are stored in array ---" << endl;
 
+
+    FILE *YFID = NULL;        /* solution output file */
+    savey = SAVENAME+"_sol.csv";
+    YFID = fopen(savey.c_str(),"w");
+    EFID = fopen(saverr.c_str(),"w");
+
+    fprintf(YFID, "%24.14e,%24.14e,%24.14e\n", eps2, r2, m_sol);
+
+    fclose(YFID)
 
     return 0;
 }
