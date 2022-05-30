@@ -1,6 +1,10 @@
 #ifndef INIT
 #define INIT
 
+
+#include "constants.hpp"
+namespace dlc = dimless_constants;
+
 /* File containing initial conditions & setup
 for ODE solver */
 
@@ -19,7 +23,16 @@ int nout           = 1000;                         // No. time points to evaluat
 double rtol        = 1e-6;                         // relative tolerance (tol) for integration
 double atols[2]    = {1e-6, 1e-6};                // absolute tols for [parcel thermodynamics, droplet radii]
 
-                           
+
+/* droplet init params. First create superdroplet eps, r0
+and m_sol data using python "create_superdrop_init.py" */
+int nsupers       = 20;                // no. distinct superdrop objects in array
+double iRho_l      = dlc::Rho_l;
+double iRho_sol    = dlc::Rho_sol;
+double iMr_sol     = dlc::Mr_sol;
+int iIONIC         = dlc::IONIC;                 
+
+
 
 
                                                 

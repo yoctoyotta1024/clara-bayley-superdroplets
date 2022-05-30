@@ -8,6 +8,7 @@
 
 #include "init.hpp"
 #include "constants.hpp"
+#include "superdropletclasses.hpp"
 #include "differentials.hpp"
 // #include "jacobian.hpp"               // file with Jacobian function (is using optional step 12.)
 #include "cvodehelpers.hpp"
@@ -35,7 +36,7 @@ using namespace dlc;
 
 
 
-/* Problem Constants */
+/* ODE Solving Constants */
 #define NEQ   2                                  // number of equations
 #define Y1    RCONST(p_init/dlc::P0)             // initial y components
 #define Y2    RCONST(temp_init/dlc::TEMP0)
@@ -60,17 +61,26 @@ using namespace dlc;
 
 int main(){
 
-
-  // TODO de-dimesionalise: w = w/W0
-  // TODO de-dimesionalise: z/(W0*T0))
-
-
   /* Project name and savefile names*/
   std::string PROJNAME, SAVENAME, STATSNAME, savey, saverr;
-  PROJNAME = "2-species dynamics problem";
+  PROJNAME = "Simple Rising Parcel (with Drop Condensation tbc)";
   SAVENAME = "sundials2";
   STATSNAME = SAVENAME+"_stats.csv";
 
+  /* Initialise Superdroplets using INITDROPSCSV .csv file */
+  string INITDROPSCSV;
+  INITDROPSCSV = "dimlessinit_superdroplets.csv";
+  
+  Superdrop drops_arr[nsupers];
+  for(int i=0; i<nsupers; i++){
+    drops_arr[i] = Superdrop(iRho_l, iRho_sol, iMr_sol, iIONIC); 
+  }
+  Superdrop* ptr; 
+  ptr = &drops_arr[0];
+  initialise_Superdrop_instances(INITDROPSCSV, ptr, nsupers);
+  
+
+  // ------------------ ODE Solver stuff beyond this line ------------------- //
 
   // Create the SUNDIALS solver stuff//
   SUNContext sunctx;
@@ -89,7 +99,7 @@ int main(){
   // Output files to write to
   FILE* SFID;                // integration stats output file 
   FILE *YFID = NULL;         // solution output file 
-  FILE *EFID = NULL;         // error output file   
+  //FILE *EFID = NULL;         // error output file   
 
   // initialise vectors, matrix and solver
   y = NULL;
@@ -174,11 +184,11 @@ int main(){
 
   /* Output initial conditions */
   savey = SAVENAME+"_sol.csv";
-  saverr = SAVENAME+"_err.csv";
+  //saverr = SAVENAME+"_err.csv";
   YFID = fopen(savey.c_str(),"w");
-  EFID = fopen(saverr.c_str(),"w");
-  WriteOutput(1, YFID, EFID);
-  WriteOutput(T0, y, e, 1, YFID, EFID);
+  //EFID = fopen(saverr.c_str(),"w");
+  CheckWriteOutput(1, YFID);                 // WriteOutput(1, YFID, EFID);
+  WriteOutput(T0, y, 1, YFID);       // WriteOutput(T0, y, e, 1, YFID, EFID);
   
   /* Open Integration Statistics File in preparation for writing */ 
   SFID = fopen(STATSNAME.c_str(), "w");
@@ -205,7 +215,7 @@ int main(){
     /* 14(b) Output solution and error */
     //retval = ComputeError(t, y, e, &ec, udata);
     //if (check_retval(&retval, "ComputeError", 1)) break;
-    WriteOutput(t, y, e, 1, YFID, EFID);
+    WriteOutput(t, y, 1, YFID);  //WriteOutput(t, y, e, 1, YFID, EFID);
     if (check_retval(&retval, "WriteOutput", 1)) break;
 
     /* 14(c) Continute to next timestep */
@@ -218,7 +228,7 @@ int main(){
   }
 
   fclose(YFID);
-  fclose(EFID);
+  //fclose(EFID);
   fclose(SFID);
 
 

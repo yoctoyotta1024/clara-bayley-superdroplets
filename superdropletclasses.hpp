@@ -1,14 +1,21 @@
 #ifndef SUPERDROPLETCLASSES
 #define SUPERDROPLETCLASSES
 
+#include <iostream>
 #include <math.h>
+#include <fstream>
+#include <sstream>
+#include <vector>
+
+using namespace std;
+
+
 
 
 /* constants that belong in parts of equations
 Eg. kohler_factor a = KOH_A/temp */
 const double KOH_A    = 3.3e-7;             // used in kohler factor a calculation
 const double KOH_B    = 43e-6;        // used in kohler factor b calculation
-
 
 
 
@@ -88,6 +95,11 @@ class Superdrop : public Common2AllSuperdrops
         
     Superdrop() {}
 
+    Superdrop(double aRho_l, double aRho_sol, 
+                double aMr_sol, double aIonic) : Common2AllSuperdrops(aRho_l, aRho_sol, 
+                            aMr_sol, aIonic){}
+
+ 
     Superdrop(double aEps, double aR, double aM_sol, double aRho_l, double aRho_sol, 
                 double aMr_sol, double aIonic) : Common2AllSuperdrops(aRho_l, aRho_sol, 
                             aMr_sol, aIonic)
@@ -187,6 +199,100 @@ class Superdrop : public Common2AllSuperdrops
 
 
 
+
+
+
+
+
+Superdrop* initialise_Superdrop_instances(string FNAME, Superdrop* ptr, int nsupers)
+{
+
+  /* read CSV file for eps, r and m_sol then create 
+         instances of Superdroplet class */ 
+  ifstream file;
+  double eps, r, m_sol;
+  double arr[3] = {0,0,0};  
+  eps=arr[0]; r=arr[1]; m_sol=arr[2];
+  string line, substr;
+  vector<string> result;
+  bool headerend= false;
+  int hend, k;
+  int l = 0; 
+  int n = 0;
+
+  file.open(FNAME);
+  cout << "Reading in Superdroplet Initialisation Data... \n" << endl;
+
+  while(!file.eof()){   // while reading the file returns non-empty lines
+    
+    file>>line;
+      
+    if(line == "*/"){
+      // find end of header by first time that line = */
+      headerend = true;
+      hend = l;
+    }
+
+    if(line == ""){
+      // stop reading data if a line is empty
+      break;
+    }
+        
+    if(headerend && l > hend){
+      // all lines after end of header line are data
+      cout<< "SD"<< l-hend << ": "<<line<< endl;    
+    
+      stringstream ss(line);
+      
+      k = 0;    
+      while(ss.good())
+      {
+        getline(ss, substr, ',' );
+        result.push_back(substr);
+        arr[k] = atof(substr.c_str());
+        k++;
+      }
+      if(n < nsupers){
+        (ptr+n) -> eps = arr[0];
+        (ptr+n) -> r = arr[1];
+        (ptr+n) -> m_sol = arr[2];
+        cout <<"      eps = "<< (ptr+n) -> eps;
+        cout << ", r = " << (ptr+n) -> r;
+        cout << ", m_sol = " << (ptr+n) -> m_sol << endl;   
+      n++;
+      }
+      else{
+        cout << "Superdrop not made" << endl;
+      }
+    }
+    
+    line = "";
+    l++;
+  }
+
+  cout << "\n ------------------------------- " << endl;
+  cout << " -- Datafile reading complete -- " << endl;
+  cout << "  No. Superdroplets Created = " << nsupers << " out of "<< l-hend-1 <<endl;
+  if(n < nsupers){
+    cout << "\n!!!! !!!! !!!! !!!! ERROR WARNING !!!! !!!! !!!! !!!!"<< endl;
+    cout << "  !! Some bad superdrops have been created !!" << endl;
+    cout << "     No. superdrops in array (nsupers) greater" << endl;
+    cout << "     than No. lines of data in .csv file." << endl;
+    cout << "!!!! !!!! !!!! !!!! ERROR WARNING !!!! !!!! !!!! !!!!\n"<< endl;
+  }
+  else if (l-hend-1 > nsupers){
+    cout << "\n!!!! !!!! !!!! !!!! WARNING !!!! !!!! !!!! !!!!"<< endl;
+    cout << "Fewer superdrops have been created than is possible" << endl;
+    cout << "    No. superdrops in array (nsupers) less than" << endl;
+    cout << "      No. lines of data in .csv file." << endl;
+    cout << "!!!! !!!! !!!! !!!! WARNING !!!! !!!! !!!! !!!!\n"<< endl;
+  }
+  cout << " ------------------------------- \n" << endl;
+  
+  file.close();
+
+  return ptr;
+}
 
 
 
