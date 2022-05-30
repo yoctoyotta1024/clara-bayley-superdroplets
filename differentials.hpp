@@ -38,6 +38,28 @@ realtype gamma = DC::G/(DC::RGAS_DRY*0.0062)-1;
 
 
 
+/* user data structure for passing 
+      args to f() function from ode solver */
+/* Type : UserData contains preconditioner blocks,
+     pivot arrays, and problem constants */
+typedef struct {
+  realtype w;
+  Superdrop drop1; //, drop2, drop3;
+} *UserData;
+
+
+static void InitUserData(UserData data, realtype w, Superdrop testdrop)
+{
+  data->w = w;
+  data->drop1 = testdrop;
+  // data->drop2 = 2;
+  // data->drop3 = 3;
+}
+
+/* ----------------------------------------------- */
+
+
+
 
 /*
  * dp/dt differential equation 
@@ -93,23 +115,53 @@ static realtype dtemp_dt_adia(N_Vector ydot, realtype p,
 
 
 
+// /*
+//  * dr/dt differential equation describing radius
+//   evolution over time for each superdrop.
+//  */
+
+// static realtype dr_dt(realtype t, N_Vector ydot, realtype w)
+// {
+//   realtype dp, profile;
+
+//   profile = 1 - lpsrate/tempg*(w*t-zg);
+//   profile = pow(profile, gamma);
+
+//   dp = Ith(ydot,1) = -dp_dt_const*pg/tempg*profile;
+//   // dp = -dp_dt_const*pg/tempg*profile;
+
+//   return(dp);
+// }
+
+
+
+
+
+
 /*
  * Simple function f(t,y) called by ODE solver to 
  solve differential equations over time.
  */
-static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
+static int f(realtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
   
-  realtype p, temp, qv, qc;
+  UserData data;
+  data = (UserData) user_data;
+  
+  realtype p, temp, qv, qc, w;
   p = Ith(y,1); 
   temp = Ith(y,2);
   qv = 0.0;  //Ith(y,3);
   qc = 0.0;  //Ith(y,4);
+  w = data -> w;
 
-  realtype w = 0.5/dlc::W0;
+ // realtype w = 0.5/dlc::W0;
   dp_dt(t, ydot, w);     
 
   dtemp_dt_adia(ydot, p, temp, qv, qc);    
+
+  
+
 
   return(0);
 }

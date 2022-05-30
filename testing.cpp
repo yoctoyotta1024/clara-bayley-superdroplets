@@ -4,6 +4,7 @@
 
 #include <cvode/cvode.h>               /* prototypes for CVODE fcts., consts.  */
 #include "constants.hpp"
+#include "init.hpp"
 
 
 namespace dlc = dimless_constants;
@@ -23,25 +24,55 @@ realtype gamma = DC::G/(DC::RGAS_DRY*0.0062)-1;
 
 
 
+/* Type : UserData
+   contains preconditioner blocks, pivot arrays, and problem constants */
+typedef struct {
+  realtype w, drop1, drop2, drop3;
+} *UserData;
 
+
+static void InitUserData(UserData data);
+realtype f(realtype z, void *user_data);
+
+
+
+static void InitUserData(UserData data, realtype w)
+{
+  data->w = w;
+  data->drop1 = 1;
+  data->drop2 = 2;
+  data->drop3 = 3;
+}
 
 
 int main(){
+
+  realtype w = iW/dlc::W0;
+  cout << w << endl;
+  UserData data;
+  data = (UserData) malloc(sizeof *data);
+  InitUserData(data, w);
+
+  realtype y;
+  y = f(3, data);
     
-  realtype t, w, dp, profile;
+  cout << "y: " << y<< endl;
 
-  t = 0.001001001001001001;
-  w = 0.5/dlc::W0;
+  free(data);
+}
 
-  profile = 1 - lpsrate/tempg*(w*t-zg);
-  profile = pow(profile, gamma);
 
-  dp = -dp_dt_const*pg/tempg*profile;
-  // dp = -dp_dt_const*pg/tempg*profile;
 
-  cout << t << " " << w << endl;
-  cout << profile << endl;
-  cout << gamma << endl;
-  cout << dp << endl;
 
+realtype f(realtype z, void *user_data){
+
+  UserData data;
+  realtype w;
+  data = (UserData) user_data;
+  
+  w = data -> w;
+
+  realtype y = w+2;
+
+  return y;
 }

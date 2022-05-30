@@ -20,9 +20,10 @@ Rho_sol    = 2200/RHO0                            # dimensionless solute density
 
 ##############################################
 ### droplet properties for initialisation ### 
-rspan            = [1e-8, 1e-5]                    # initial range of droplet radii [m]
+INITDROPSCSV = "dimlessSDinit.csv"
 nsupers          = 20                              # no. of distinct superdrops (different initial radii (evenly spaced between ln(rspan))
 
+rspan            = [1e-8, 1e-5]                    # initial range of droplet radii [m]
 #mus             = [0.075e-6]                      # [m] geometric mean droplet radius
 #sigs            = [1.5]                    
 #n_as            = [1e9]                           # [m^-3] total no. concentration of droplets          
@@ -142,7 +143,7 @@ m_sol = Rho_sol*4/3*np.pi*r0**3                   # assuming initially dry areos
 
 print("Writing inital droplet distribution to: ./init_superdroplets.csv")
 
-with open('./dimlessinit_superdroplets.csv', 'w', encoding='UTF8') as f:
+with open('./'+INITDROPSCSV, 'w', encoding='UTF8') as f:
   writer = csv.writer(f)
   writer.writerow(["/* Initial Dimensionless Superdroplets Data"])
   writer.writerow([" N0 = "+str(N0)+"[m^-3]", "  R0 = "+str(R0)+"[m]", 

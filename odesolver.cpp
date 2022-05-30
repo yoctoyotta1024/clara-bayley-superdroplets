@@ -35,15 +35,15 @@ using namespace dlc;
 
 
 
-
 /* ODE Solving Constants */
-#define NEQ   2                                  // number of equations
+#define NEQ   3                                  // number of equations
 #define Y1    RCONST(p_init/dlc::P0)             // initial y components
 #define Y2    RCONST(temp_init/dlc::TEMP0)
 
 #define RTOL  RCONST(rtol)                       // scalar relative tolerance
 #define ATOL1 RCONST(atols[0])                   // vector absolute tolerance components
 #define ATOL2 RCONST(atols[0])
+#define ATOL3 RCONST(atols[1])
 
 #define T0    RCONST(tspan[0]/dlc::TIME0)        // initial time (dimensionless)          
 #define TSTEP RCONST(tspan[1]/nout/dlc::TIME0)   // output time step (dimensionless)     
@@ -58,7 +58,6 @@ using namespace dlc;
  * Main Program
  *-------------------------------
  */
-
 int main(){
 
   /* Project name and savefile names*/
@@ -69,8 +68,8 @@ int main(){
 
   /* Initialise Superdroplets using INITDROPSCSV .csv file */
   string INITDROPSCSV;
-  INITDROPSCSV = "dimlessinit_superdroplets.csv";
-  
+  INITDROPSCSV = "dimlessSDinit.csv";
+
   Superdrop drops_arr[nsupers];
   for(int i=0; i<nsupers; i++){
     drops_arr[i] = Superdrop(iRho_l, iRho_sol, iMr_sol, iIONIC); 
@@ -79,6 +78,13 @@ int main(){
   ptr = &drops_arr[0];
   initialise_Superdrop_instances(INITDROPSCSV, ptr, nsupers);
   
+  // set some values for solver using values from init.hpp file //
+  UserData data;
+  data = (UserData) malloc(sizeof *data);
+  realtype w = iW/dlc::W0;
+  Superdrop testdrop(33, 1.0, 6.4, iRho_l, iRho_sol, iMr_sol, iIONIC); 
+  InitUserData(data, w, testdrop);
+
 
   // ------------------ ODE Solver stuff beyond this line ------------------- //
 
@@ -128,7 +134,7 @@ int main(){
   /* Initialize y vector */
   Ith(y,1) = Y1;
   Ith(y,2) = Y2;
-  // Ith(y,3) = Y3;
+  Ith(y,3) = drops_arr[0].r;
 
   /* 3. Set the vector absolute tolerance */
   abstol = N_VNew_Serial(NEQ, sunctx);
@@ -136,6 +142,7 @@ int main(){
 
   Ith(abstol,1) = ATOL1;
   Ith(abstol,2) = ATOL2;
+  Ith(abstol,3) = ATOL3;
 
   /* 4. Call CVodeCreate to create the solver memory and specify the
    * Backward Differentiation Formula */
@@ -147,6 +154,12 @@ int main(){
    * the initial dependent variable vector y. */
   retval = CVodeInit(cvode_mem, f, T0, y);
   if (check_retval(&retval, "CVodeInit", 1)) return(1);
+  
+  /* 10. Set linear solver optional inputs. 
+      Provide user data which can be accessed in user provided routines */
+  retval = CVodeSetUserData(cvode_mem, data);
+  if (check_retval((void *)&retval, "CVodeSetUserData", 1)) return(1);
+  
 
   /* 6. Call CVodeSVtolerances to specify the scalar relative tolerance
    * and vector absolute tolerances */
@@ -166,8 +179,6 @@ int main(){
   LS = SUNLinSol_Dense(y, A, sunctx);
   if (check_retval((void *)LS, "SUNLinSol_Dense", 0)) return(1);
   
-  // 10. Set linear solver optional inputs.
-  // ---------------------------------------------------------------------------
 
   /* 11. Attach the matrix and linear solver to CVODE */
   retval = CVodeSetLinearSolver(cvode_mem, LS, A);
@@ -241,6 +252,7 @@ int main(){
   N_VDestroy(y);                            /* Free y vector */
   N_VDestroy(e);                            /* Free error vector */
   N_VDestroy(abstol);                       /* Free abstol vector */
+  free(data);                               /* free user_data pointer struc */
   CVodeFree(&cvode_mem);                    /* Free CVODE memory */
   SUNLinSolFree(LS);                        /* Free the linear solver memory */
   SUNMatDestroy(A);                         /* Free the matrix memory */
