@@ -11,11 +11,12 @@ using namespace std;
 
 
 
-
 /* constants that belong in parts of equations
 Eg. kohler_factor a = KOH_A/temp */
-const double KOH_A    = 3.3e-7;             // used in kohler factor a calculation
-const double KOH_B    = 43e-6;        // used in kohler factor b calculation
+//#include "constants.hpp"
+//namespace dlc = dimless_constants;
+const double KOH_A    = 3.3e-7/(dlc::TEMP0*dlc::R0);             // used in dimensionless kohler factor a calculation
+const double KOH_B    = 43e-6*dlc::RHO0/dlc::MR0;                // used in dimensionless kohler factor b calculation
 
 
 
@@ -109,8 +110,6 @@ class Superdrop : public Common2AllSuperdrops
        r = aR;
        m_sol = aM_sol; 
 
-       b = KOH_B*m_sol*getIonic()/getMr_sol(); 
-       
        setSuperdropPrivates(aR);
 
     }
@@ -179,16 +178,23 @@ class Superdrop : public Common2AllSuperdrops
     } 
     
 
-    void kohler_factor(double temp, double* ad_a, double* ad_b)
-    /* calculate b in kelvin factor (1-b/r^3)
-        and a in raoult factor (exp^(a/r)) to
-        account for curvature and effect of solute
-        on radial growth of droplet respectively.
-        Using eq.6.24 and eq.6.22 of lohmann, luond
+    double akohler_factor(double temp)
+    /* calculate a in raoult factor (exp^(a/r)) to
+        account for effect of dissolved solute
+        on radial growth of droplet. Using eq.6.24 
+        and eq.6.22 of lohmann, luond
         and mahrt intro 2 clouds textbook */
     {
-        *ad_a = KOH_A/temp;                      // 2*surface_tens (=0.0756N/m)/(rho_l*rgas_v*temp) [eq.6.24]
-        *ad_b = b;
+        return KOH_A/temp;                      // 2*surface_tens (=0.0756N/m)/(rho_l*rgas_v*temp) [eq.6.24]
+    }
+
+    double bkohler_factor()
+    /* calculate b in kelvin factor (1-b/r^3)
+        to account for curvature on radial growth 
+        of droplet. Using eq.6.24 and eq.6.22 of lohmann, 
+        luond and mahrt intro 2 clouds textbook */
+    {
+        return KOH_B*m_sol*getIonic()/getMr_sol();
     }
 
 
@@ -256,6 +262,7 @@ Superdrop* initialise_Superdrop_instances(string FNAME, Superdrop* ptr, int nsup
         (ptr+n) -> eps = arr[0];
         (ptr+n) -> r = arr[1];
         (ptr+n) -> m_sol = arr[2];
+        (ptr+n) -> setSuperdropPrivates(arr[1]);
         cout <<"      eps = "<< (ptr+n) -> eps;
         cout << ", r = " << (ptr+n) -> r;
         cout << ", m_sol = " << (ptr+n) -> m_sol << endl;   

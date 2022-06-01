@@ -14,11 +14,9 @@ static int PrintINITData(string PROJNAME, int NEQ, N_Vector y, realtype rtol,
           N_Vector abstol, int NOUT, realtype T0, realtype T1, realtype TSTEP);
 static void PrintOutput(realtype t, N_Vector y);
 static void PrintRootInfo(int root_f1, int root_f2);
-static int CheckWriteOutput(int screenfile, FILE* YFID);
-static int WriteOutput(realtype t, N_Vector y, int screenfile, FILE* YFID);
-// static int CheckWriteOutputWithErr(int screenfile, FILE* YFID, FILE* EFID);
-//static int WriteOutput(realtype t, N_Vector y, N_Vector e,
-//                       int screenfile, FILE* YFID, FILE* EFID);
+static int HeaderWriteOutput(FILE* YFID, int index0, int indexend, bool fPrintTimeHeader);
+static int WriteOutput(realtype t, N_Vector y, int nsupers, 
+              FILE* YFID, FILE* SDFID, FILE* EFID);
 
 /* Private function to check function return values */
 static int check_retval(void *returnvalue, const char *funcname, int opt);
@@ -63,15 +61,16 @@ static int PrintINITData(string PROJNAME, int NEQ, N_Vector y, realtype rtol,
 
 static void PrintOutput(realtype t, N_Vector y)
 {
-realtype y1, y2, y3;
+realtype y1, y2, y3, y4;
 y1 = Ith(y,1);
 y2 = Ith(y,2);
-y3 = 0.0;
+y3 = Ith(y,3);
+y4 = Ith(y,4);
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("At t = %0.4Le      y =%14.6Le  %14.6Le  %14.6Le\n", t, y1, y2, y3);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-  printf("At t = %0.4e      y =[%14.6e  %14.6e  %14.6e ]\n", t, y1, y2, y3);
+  printf("At t = %0.4e    y =[%14.6e  %14.6e  %14.6e %14.6e, ...]\n",t, y1,y2,y3,y4);
 #else
   printf("At t = %0.4e      y =%14.6e  %14.6e  %14.6e\n", t, y1, y2, y3);
 #endif
@@ -88,25 +87,28 @@ static void PrintRootInfo(int root_f1, int root_f2)
   return;
 }
 
-static int CheckWriteOutput(int screenfile, FILE* YFID)
+
+static int HeaderWriteOutput(FILE* YFID, int index0, int indexend, bool fPrintTimeHeader)
 {
-  string whtspc = "                        ";
-  string HEADERSTR = "### t"+whtspc+"y1"+whtspc+"y2"+whtspc+" ###\n";
+  string whtspc = ",    ";
+  string HEADERSTR;
+  
+  /* check file pointers */
+  if (YFID == NULL) return(1);
 
-  if (screenfile == 0)
-    {
-      /* output header to screen */
-      printf("time, t     y1      y2    \n");
-    }
-  else
-    {
-      /* check file pointers */
-      if (YFID == NULL) return(1);
+  /* write header to file */
+  HEADERSTR = "/* columns are:  ";
+  if(fPrintTimeHeader){
+  HEADERSTR += "t"+whtspc;
+  }
+  for(int i=index0; i<=indexend; i++){
+    HEADERSTR += "y"+to_string(i)+whtspc;
+  }
+  HEADERSTR += " */\n";
 
-      /* output solution to disk */
-      fprintf(YFID, "%s", HEADERSTR.c_str());
+  /* output header string to disk */
+  fprintf(YFID, "%s", HEADERSTR.c_str());
 
-    } 
 
   return(0);
 }
@@ -115,26 +117,36 @@ static int CheckWriteOutput(int screenfile, FILE* YFID)
 
 
 /* Output the solution to disk (or terminal) */
-static int WriteOutput(realtype t, N_Vector y, int screen, FILE* YFID)
+static int WriteOutput(realtype t, N_Vector y, int nsupers, 
+                      FILE* YFID, FILE* SDFID, FILE* EFID)
 {
   realtype *ydata = N_VGetArrayPointer(y);
+  //realtype *edata = N_VGetArrayPointer(e);
 
-  if (screen == 0)
+  /* check file pointers */
+  if (YFID == NULL) return(1);
+
+  /* output solution to disk */
+  fprintf(YFID, "%24.14e,%24.14e,%24.14e,%24.14e,%24.14e\n",
+          t, ydata[0], ydata[1], ydata[2], ydata[3]);
+  
+  /* output superdroplet solution to disk if SDFID!=NULL */
+  if(SDFID)
   {
-    /* output solution and error to screen */
-    printf("%0.4e %14.6e %14.6e\n",
-           t, ydata[0], ydata[1]);
+    for(int i=0; i<nsupers-1; i++)
+    {
+      fprintf(SDFID, "%24.14e,", ydata[i+4]);
+    }
+      fprintf(SDFID, "%24.14e\n", ydata[nsupers+3]);
   }
-  else
-  {
-    /* check file pointers */
-    if (YFID == NULL) return(1);
+  
+  // /* output error to disk */
+  // if(EFID)
+  // {
+  // fprintf(EFID, "%24.14e,%24.14e,%24.14e,%24.14e,%24.14e\n",
+  //         t, edata[0], edata[1], edata[2], edata[3]);
+  // }
 
-    /* output solution to disk */
-    fprintf(YFID, "%24.14e,%24.14e,%24.14e\n",
-            t, ydata[0], ydata[1]);
-
-  }
 
   return(0);
 }
@@ -142,69 +154,6 @@ static int WriteOutput(realtype t, N_Vector y, int screen, FILE* YFID)
 
 
 
-// static int CheckWriteOutputWithErr(int screenfile, FILE* YFID, FILE* EFID)
-// {
-//   string whtspc = "                        ";
-//   string HEADERSTR = "### t"+whtspc+"y1"+whtspc+"y2"+whtspc+" ###\n";
-//   string ERR_HEADERSTR = "### t"+whtspc+"e1"+whtspc+"e2"+whtspc+" ###\n";
-
-//   if (screenfile == 0)
-//     {
-//       /* output header to screen */
-//       printf("time, t     y1      y2       error    \n");
-//     }
-//   else
-//     {
-//       /* check file pointers */
-//       if (YFID == NULL || EFID == NULL) return(1);
-
-//       /* output solution to disk */
-//       fprintf(YFID, "%s", HEADERSTR.c_str());
-
-//       if (EFID){
-//         /* output error to disk */
-//         fprintf(EFID, "%s", ERR_HEADERSTR.c_str());
-//       }
-//     } 
-
-//   return(0);
-// }
-
-
-
-
-// /* Output the solution to disk (or terminal) */
-// static int WriteOutputWithErr(realtype t, N_Vector y, N_Vector e,
-//                        int screenfile, FILE* YFID, FILE* EFID)
-// {
-//   realtype *ydata = N_VGetArrayPointer(y);
-//   realtype *edata = N_VGetArrayPointer(e);
-
-//   if (screenfile == 0)
-//   {
-//     /* output solution and error to screen */
-//     printf("%0.4e %14.6e %14.6e %14.6e %14.6e\n",
-//            t, ydata[0], ydata[1], edata[0], edata[1]);
-//   }
-//   else
-//   {
-//     /* check file pointers */
-//     if (YFID == NULL || EFID == NULL) return(1);
-
-//     /* output solution to disk */
-//     fprintf(YFID, "%24.14e,%24.14e,%24.14e\n",
-//             t, ydata[0], ydata[1]);
-
-//     /* output error to disk */
-//     if (EFID){
-//       fprintf(EFID,
-//             "%24.16e,%24.16e,%24.1e\n",
-//             t, edata[0], edata[1]);
-//     }
-//   }
-
-//   return(0);
-// }
 
 
 

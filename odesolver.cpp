@@ -36,14 +36,15 @@ using namespace dlc;
 
 
 /* ODE Solving Constants */
-#define NEQ   3                                  // number of equations
+#define NEQ   4+nsupers                                   // number of equations
 #define Y1    RCONST(p_init/dlc::P0)             // initial y components
 #define Y2    RCONST(temp_init/dlc::TEMP0)
+#define Y4    RCONST(qc_init)
+const realtype  W = iW/dlc::W0;                  // dimensionless w velocity for f(t,y,ydot,w,...)
 
 #define RTOL  RCONST(rtol)                       // scalar relative tolerance
-#define ATOL1 RCONST(atols[0])                   // vector absolute tolerance components
-#define ATOL2 RCONST(atols[0])
-#define ATOL3 RCONST(atols[1])
+#define ATOLy1to4 RCONST(atols[0])               // vector absolute tolerance components for y1 to y4
+#define ATOLy5plus RCONST(atols[1])                  // for y5 onwards (Superdroplets)
 
 #define T0    RCONST(tspan[0]/dlc::TIME0)        // initial time (dimensionless)          
 #define TSTEP RCONST(tspan[1]/nout/dlc::TIME0)   // output time step (dimensionless)     
@@ -61,33 +62,16 @@ using namespace dlc;
 int main(){
 
   /* Project name and savefile names*/
-  std::string PROJNAME, SAVENAME, STATSNAME, savey, saverr;
-  PROJNAME = "Simple Rising Parcel (with Drop Condensation tbc)";
-  SAVENAME = "sundials2";
-  STATSNAME = SAVENAME+"_stats.csv";
+  std::string PROJNAME, SAVENAME, STATSNAME;
+  PROJNAME = "Simple Rising Parcel (with Drop Condensation tbc)";          // project title sometimes used
+  SAVENAME = "sundials2";                                                  // solution written to SAVENAME_sol.csv file
+  STATSNAME = SAVENAME+"_stats.csv";                                       // integration statistics written to this .csv
 
-  /* Initialise Superdroplets using INITDROPSCSV .csv file */
   string INITDROPSCSV;
-  INITDROPSCSV = "dimlessSDinit.csv";
-
-  Superdrop drops_arr[nsupers];
-  for(int i=0; i<nsupers; i++){
-    drops_arr[i] = Superdrop(iRho_l, iRho_sol, iMr_sol, iIONIC); 
-  }
-  Superdrop* ptr; 
-  ptr = &drops_arr[0];
-  initialise_Superdrop_instances(INITDROPSCSV, ptr, nsupers);
-  
-  // set some values for solver using values from init.hpp file //
-  UserData data;
-  data = (UserData) malloc(sizeof *data);
-  realtype w = iW/dlc::W0;
-  Superdrop testdrop(33, 1.0, 6.4, iRho_l, iRho_sol, iMr_sol, iIONIC); 
-  InitUserData(data, w, testdrop);
-
+  INITDROPSCSV = "dimlessSDinit.csv";                                       // file to read for SD eps, r and m_sol initialisation 
 
   // ------------------ ODE Solver stuff beyond this line ------------------- //
-
+  
   // Create the SUNDIALS solver stuff//
   SUNContext sunctx;
   SUNMatrix A;
@@ -99,21 +83,41 @@ int main(){
 
   // Create problem stuff
   realtype t, tout;
-  N_Vector y, e;
+  N_Vector y; //, e;
   N_Vector abstol;
 
   // Output files to write to
-  FILE* SFID;                // integration stats output file 
+  FILE* STSFID;                // integration stats output file 
   FILE *YFID = NULL;         // solution output file 
+  FILE *SDFID = NULL;         // solution output file 
   //FILE *EFID = NULL;         // error output file   
 
   // initialise vectors, matrix and solver
+  UserData data;
+  data = (UserData) malloc(sizeof *data);
   y = NULL;
   abstol = NULL;
   A = NULL;
   LS = NULL;
   cvode_mem = NULL;
 
+  /* Initial qv and qc from relative humidity */
+  realtype pv_init;
+  pv_init = saturation_pressure(Y2)*relh_init/100;
+  realtype Y3 = pv2qv(pv_init, Y1);      //initial qv for solver
+
+  /* Initialise Superdroplets using INITDROPSCSV .csv file */
+  Superdrop drops_arr[nsupers];
+  for(int i=0; i<nsupers; i++)
+  {
+    drops_arr[i] = Superdrop(iRho_l, iRho_sol, iMr_sol, iIONIC); 
+  }
+  Superdrop* ptr; 
+  ptr = &drops_arr[0];
+  initialise_Superdrop_instances(INITDROPSCSV, ptr, nsupers);
+  
+  /* set values of pointers given in user_data to f() ODE function */
+  InitUserData(data, W, doCond, nsupers, ptr);
 
   /* 0. Create the SUNDIALS context */
   retval = SUNContext_Create(NULL, &sunctx);
@@ -121,28 +125,38 @@ int main(){
 
   /*  1. Initialize parallel or multi-threaded environment, if appropriate. */
   // ---------------------------------------------------------------------- //
-    
+
   /* 2. Initial conditions */
   y = N_VNew_Serial(NEQ, sunctx);
   if (check_retval((void *)y, "N_VNew_Serial", 0)) return(1);
 
-  /* Create serial vector to store the solution error */
-  e = N_VClone(y);
-  if (check_retval((void *)y, "N_VClone", 0)) return(1);
-  N_VConst(ZERO, e);                           /* Set initial error vector */
+  // /* Create serial vector to store the solution error */
+  // e = N_VClone(y);
+  // if (check_retval((void *)y, "N_VClone", 0)) return(1);
+  // N_VConst(ZERO, e);                           /* Set initial error vector */
 
   /* Initialize y vector */
   Ith(y,1) = Y1;
   Ith(y,2) = Y2;
-  Ith(y,3) = drops_arr[0].r;
+  Ith(y,3) = Y3;
+  Ith(y,4) = Y4;
+  for(int i=0; i<nsupers; i++)
+  {
+    Ith(y,i+5) = drops_arr[i].getR0();
+  }
 
   /* 3. Set the vector absolute tolerance */
   abstol = N_VNew_Serial(NEQ, sunctx);
   if (check_retval((void *)abstol, "N_VNew_Serial", 0)) return(1);
 
-  Ith(abstol,1) = ATOL1;
-  Ith(abstol,2) = ATOL2;
-  Ith(abstol,3) = ATOL3;
+  for(int i=1; i<5; i++)
+  {
+    Ith(abstol,i) = ATOLy1to4;
+  }
+  for(int i=0; i<nsupers; i++)
+  {
+    Ith(abstol,i+5) = ATOLy5plus;
+  }
 
   /* 4. Call CVodeCreate to create the solver memory and specify the
    * Backward Differentiation Formula */
@@ -194,15 +208,15 @@ int main(){
   if(check_retval(&retval, "PrintINITData", 1)) return(1);
 
   /* Output initial conditions */
-  savey = SAVENAME+"_sol.csv";
-  //saverr = SAVENAME+"_err.csv";
-  YFID = fopen(savey.c_str(),"w");
-  //EFID = fopen(saverr.c_str(),"w");
-  CheckWriteOutput(1, YFID);                 // WriteOutput(1, YFID, EFID);
-  WriteOutput(T0, y, 1, YFID);       // WriteOutput(T0, y, e, 1, YFID, EFID);
-  
+  YFID = fopen((SAVENAME+"_sol.csv").c_str(),"w");
+  SDFID = fopen((SAVENAME+"_SDsol.csv").c_str(),"w");
+  //EFID = fopen((SAVENAME+"_err.csv".c_str(),"w");
+  HeaderWriteOutput(YFID, 1, 4, true);   
+  HeaderWriteOutput(SDFID, 5, nsupers+4, false);   
+  WriteOutput(T0, y, nsupers, YFID, SDFID, NULL); 
+
   /* Open Integration Statistics File in preparation for writing */ 
-  SFID = fopen(STATSNAME.c_str(), "w");
+  STSFID = fopen(STATSNAME.c_str(), "w");
 
   /* 14. RUN SOLVER
   For NOUT iterations, call CVode, test for error then
@@ -226,7 +240,7 @@ int main(){
     /* 14(b) Output solution and error */
     //retval = ComputeError(t, y, e, &ec, udata);
     //if (check_retval(&retval, "ComputeError", 1)) break;
-    WriteOutput(t, y, 1, YFID);  //WriteOutput(t, y, e, 1, YFID, EFID);
+    WriteOutput(t, y, nsupers, YFID, SDFID, NULL);
     if (check_retval(&retval, "WriteOutput", 1)) break;
 
     /* 14(c) Continute to next timestep */
@@ -234,23 +248,23 @@ int main(){
       tout += TSTEP;
     }
 
-    retval = CVodePrintAllStats(cvode_mem, SFID, SUN_OUTPUTFORMAT_CSV);
+    retval = CVodePrintAllStats(cvode_mem, STSFID, SUN_OUTPUTFORMAT_CSV);
  
   }
 
   fclose(YFID);
+  fclose(SDFID);
   //fclose(EFID);
-  fclose(SFID);
+  fclose(STSFID);
 
 
   /* 15. Print final statistics to the screen */
   printf("\nLast Iteration Statistics:\n");
   retval = CVodePrintAllStats(cvode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
 
-
   /* 16. Free memory */
   N_VDestroy(y);                            /* Free y vector */
-  N_VDestroy(e);                            /* Free error vector */
+  // N_VDestroy(e);                            /* Free error vector */
   N_VDestroy(abstol);                       /* Free abstol vector */
   free(data);                               /* free user_data pointer struc */
   CVodeFree(&cvode_mem);                    /* Free CVODE memory */

@@ -1,11 +1,11 @@
 // run with g++ -I /usr/local/sundials-6/include  testing.cpp -std=c++11 
 #include <iostream>
 #include <cmath>
+#include <vector>
 
 #include <cvode/cvode.h>               /* prototypes for CVODE fcts., consts.  */
 #include "constants.hpp"
 #include "init.hpp"
-
 
 namespace dlc = dimless_constants;
 using namespace dlc;
@@ -36,43 +36,34 @@ realtype f(realtype z, void *user_data);
 
 
 
-static void InitUserData(UserData data, realtype w)
+int diffusion_factors(realtype* fkl, realtype* fdl, realtype temp, realtype p, realtype psat)
 {
-  data->w = w;
-  data->drop1 = 1;
-  data->drop2 = 2;
-  data->drop3 = 3;
+  realtype Thermk, Diffuse_v;
+  realtype Temp = temp*dlc::TEMP0;
+  realtype P = p*dlc::P0;
+  realtype Psat = psat*dlc::P0;
+
+  /* dimensionless factors for condensation-diffusional growth equation */
+  Thermk = 7.11756e-5*pow(Temp, 2.0) + Temp*4.38127686e-3;      // [eq.7.24 lohmann intro 2 clouds]
+  Diffuse_v = (4.012182971e-5 / P * pow(Temp,1.94))/DC::RGAS_V;
+
+  *fkl = (DC::LATENT_RGAS_V/Temp-1)*DC::LATENT_V/(Thermk*dlc::F0); 
+  *fdl = Temp/(Diffuse_v*Psat)/dlc::F0;
+    
+  
+  return 0;
 }
+
 
 
 int main(){
 
-  realtype w = iW/dlc::W0;
-  cout << w << endl;
-  UserData data;
-  data = (UserData) malloc(sizeof *data);
-  InitUserData(data, w);
-
-  realtype y;
-  y = f(3, data);
-    
-  cout << "y: " << y<< endl;
-
-  free(data);
+  realtype fkl, fdl;
+  diffusion_factors(&fkl, &fdl, 1,1,611.2126978267946/P0);
+  cout << fkl << "pointed"<<endl;
+  cout << fdl <<endl;
 }
 
 
 
 
-realtype f(realtype z, void *user_data){
-
-  UserData data;
-  realtype w;
-  data = (UserData) user_data;
-  
-  w = data -> w;
-
-  realtype y = w+2;
-
-  return y;
-}

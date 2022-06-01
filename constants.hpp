@@ -27,6 +27,8 @@ const double DYNVISC      = 18.45*1e-6;        // dynamic viscosity of air [Pa s
 const double RHO_SOL      = 2200;              // density of (dry) areosol [Kg/m^3]
 const double MR_SOL       = 0.058443;          //  molecular mass of areosol [Kg/mol] 
 const int IONIC           = 2;                 //  degree ionic dissociation (van't Hoff factor) []
+
+const double LATENT_RGAS_V  = LATENT_V/RGAS_V;  // for fkl diffusin factors calculation
 }
 
 
@@ -46,8 +48,9 @@ const double RHO0       = P0/(DC::RGAS_DRY*TEMP0);     // density [Kg/m^3]
 
 const double CP0        = DC::CP_DRY;                  // Heat capacity [J/Kg/K]
 const double MR0        = DC::MR_DRY;                  // molecular molar mass [Kg/mol]
-const double R0         = 1e-6;                      // droplet radius lengthscale [m]
-const double N0         = 1e6;                       // droplet multiplicity [m^-3]
+const double R0         = 1e-6;                        // droplet radius lengthscale [m]
+const double N0         = 1e6;                         // droplet multiplicity [m^-3]
+const double F0         = TIME0/(RHO0*R0*R0);    // droplet diffusion factors [] 
 
 
 /* de-dimensionalise constants for ODEs 

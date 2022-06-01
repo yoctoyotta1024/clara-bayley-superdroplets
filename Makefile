@@ -84,6 +84,8 @@ cleanALL:
 	rm -rf ${OBJDIR}
 	rm -rf ${DEPDIR}
 	rm -f ${CPPSOURCES}
-	rm -f *.csv
+	rm -f *_sol.csv
+	rm -f *_err.csv
+	rm -f *_stats.csv
 
 # --------------------------------------------------------------------------------------- #

@@ -20,6 +20,8 @@
         "string_view": "cpp",
         "unordered_map": "cpp",
         "iterator": "cpp",
-        "utility": "cpp"
+        "utility": "cpp",
+        "complex": "cpp",
+        "iomanip": "cpp"
     }
 }
