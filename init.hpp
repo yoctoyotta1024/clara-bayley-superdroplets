@@ -26,7 +26,7 @@ double atols[2]    = {1e-6, 1e-6};                // absolute tols for [parcel t
 
 /* droplet init params. First create superdroplet eps, r0
 and m_sol data using python "create_superdrop_init.py" */
-int nsupers        = 20;                // no. distinct superdrop objects in array
+int nsupers        = 100;                // no. distinct superdrop objects in array
 double iRho_l      = dlc::Rho_l;
 double iRho_sol    = dlc::Rho_sol;
 double iMr_sol     = dlc::Mr_sol;

@@ -1,27 +1,3 @@
 {
-    "makefile.extensionOutputFolder": "./.vscode",
-    "files.associations": {
-        "ostream": "cpp",
-        "__locale": "cpp",
-        "iostream": "cpp",
-        "cmath": "cpp",
-        "fstream": "cpp",
-        "iosfwd": "cpp",
-        "string": "cpp",
-        "vector": "cpp",
-        "istream": "cpp",
-        "__hash_table": "cpp",
-        "__split_buffer": "cpp",
-        "array": "cpp",
-        "bitset": "cpp",
-        "deque": "cpp",
-        "initializer_list": "cpp",
-        "stack": "cpp",
-        "string_view": "cpp",
-        "unordered_map": "cpp",
-        "iterator": "cpp",
-        "utility": "cpp",
-        "complex": "cpp",
-        "iomanip": "cpp"
-    }
+  "makefile.extensionOutputFolder": "./.vscode"
 }

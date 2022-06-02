@@ -2,35 +2,52 @@ import numpy as np
 import matplotlib.pyplot as plt
 import csv
 
+from convert_cpp2python import read_cpp_into_floats
+
 plt.rcParams.update({'font.size': 14})
-
-##############################################
-###  CONSTANTS!! MAKE SURE THESE ARE SAME  ###
-###  AS IN constants.hpp FOR ODE SOLVER!!  ###
-RGAS_DRY   = 8.314462618/0.0289647                # specific gas constant for dry air [J/Kg/K]      <-- used in ideal gas equation for hydrostsic rather than moist??
-P0         = 100000                               # pressure [Pa]
-TEMP0      = 273.15                               # temperature [K]
-RHO0       = P0/(RGAS_DRY*TEMP0)                  # density [Kg/m^3]
-R0         = 1e-6                                 # droplet radius lengthscale [m]
-N0         = 1e6                                  # droplet multiplicity [m^-3]
-
-Rho_sol    = 2200/RHO0                            # dimensionless solute density []
-##############################################
 
 
 ##############################################
 ### droplet properties for initialisation ### 
 INITDROPSCSV = "dimlessSDinit.csv"
-nsupers          = 20                              # no. of distinct superdrops (different initial radii (evenly spaced between ln(rspan))
 
-rspan            = [1e-8, 1e-5]                    # initial range of droplet radii [m]
-#mus             = [0.075e-6]                      # [m] geometric mean droplet radius
+rspan            = [1e-8, 1e-5]                   # initial range of droplet radii [m]
+#mus             = [0.075e-6]                     # [m] geometric mean droplet radius
 #sigs            = [1.5]                    
-#n_as            = [1e9]                           # [m^-3] total no. concentration of droplets          
+#n_as            = [1e9]                          # [m^-3] total no. concentration of droplets          
 mus              = [0.02e-6, 0.2e-6, 3.5e-6]               
 sigs             = [1.55, 2.3, 2]                    
 n_as             = [1e6, 0.3e6, 0.025e6]                  
 #############################################
+
+
+##############################################
+###  CONSTANTS!! MAKE SURE THESE ARE SAME AS IN  ###
+###  constants.hpp and init.hpp FOR ODE SOLVER!!  ###
+
+### read in constants from .hpp files
+CONSTS, notfloats = read_cpp_into_floats("./constants.hpp")
+INITS, notfloats2 = read_cpp_into_floats("./init.hpp") 
+INITS["nsupers"] = int(INITS["nsupers"])
+
+
+RGAS_DRY   = CONSTS["RGAS_UNIV"]/CONSTS["MR_DRY"]  # specific gas constant for dry air [J/Kg/K]      <-- used in ideal gas equation for hydrostsic rather than moist??
+P0         = CONSTS["P0"]                          # pressure [Pa]
+TEMP0      = CONSTS["TEMP0"]                       # temperature [K]
+RHO0       = P0/(RGAS_DRY*TEMP0)                   # density [Kg/m^3]
+R0         = CONSTS["R0"]                          # droplet radius lengthscale [m]
+N0         = CONSTS["N0"]                          # droplet multiplicity [m^-3]
+Rho_sol    =  CONSTS["RHO_SOL"]/RHO0               # dimensionless solute density []
+nsupers    = int(INITS["nsupers"])                 # no. of distinct superdrops (different initial radii (evenly spaced between ln(rspan))
+
+print("---- Additional Constants Derived -----")
+print("RGAS_DRY", "=", RGAS_DRY)
+print("RHO0", "=", RHO0)
+print("Rho_sol", "=", Rho_sol)
+print("nsupers", "=", nsupers)
+print("---------------------------------------------")
+
+##############################################
 
 
     
