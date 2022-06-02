@@ -14,26 +14,25 @@ double temp_init   = 273.15;                     // initial parcel temperature [
 double p_init      = 100000;                     // initial pressure [Pa]
 double relh_init   = 60;                         // initial relative humidity (%)
 double qc_init     = 0;                          // initial liquid water content []
-bool doCond        = true;                      // enable condensation droplet growth
+bool doCond        = true;                       // enable condensation droplet growth
 
 /* integration params */
 double tspan[2]    = {0, 4000};                   // time span of integration [s]
-int nout           = 1000;                        // No. time points to evaluate (save data at)
+int nout           = 2000;                        // No. time points to evaluate (save data at)
 double rtol        = 1e-6;                        // relative tolerance (tol) for integration
 double atols[2]    = {1e-6, 1e-6};                // absolute tols for [parcel thermodynamics, droplet radii]
 
 
 /* droplet init params. First create superdroplet eps, r0
 and m_sol data using python "create_superdrop_init.py" */
-int nsupers        = 200;                // no. distinct superdrop objects in array
+int nsupers        = 200;                         // no. distinct superdrop objects in array
 double iRho_l      = dlc::Rho_l;
 double iRho_sol    = dlc::Rho_sol;
 double iMr_sol     = dlc::Mr_sol;
 int iIONIC         = dlc::IONIC;                 
 
 /* collision parameters */
-double coll_dt     = 1;                 // time between each droplet collisions event [s]
-
+double coll_tstep     = 1;                         // maximum time between each droplet collisions event [s]
 
                                                 
 

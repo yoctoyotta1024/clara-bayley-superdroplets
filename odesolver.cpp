@@ -42,6 +42,7 @@ using namespace dlc;
 #define Y4    RCONST(qc_init)
 const realtype  W = iW/dlc::W0;                  // dimensionless w velocity for f(t,y,ydot,w,...)
 
+#define ZERO  RCONST(0.0)
 #define RTOL  RCONST(rtol)                       // scalar relative tolerance
 #define ATOLy1to4 RCONST(atols[0])               // vector absolute tolerance components for y1 to y4
 #define ATOLy5plus RCONST(atols[1])                  // for y5 onwards (Superdroplets)
@@ -49,10 +50,8 @@ const realtype  W = iW/dlc::W0;                  // dimensionless w velocity for
 #define T0    RCONST(tspan[0]/dlc::TIME0)        // initial time (dimensionless)          
 #define TSTEP RCONST(tspan[1]/nout/dlc::TIME0)   // output time step (dimensionless)     
 #define NOUT  nout                               // number of output times
-#define ZERO  RCONST(0.0)
 
-#define COLL_DT RCONST(coll_dt/dlc::TIME0)       // time between each droplet collisions event (dimless)
-
+#define COLL_TSTEP RCONST(coll_tstep/dlc::TIME0)                    // No. droplet collisions events
 
 
 /*
@@ -83,7 +82,7 @@ int main(){
   int rootsfound[2];
 
   // Create problem stuff
-  realtype t, tout;
+  realtype t, tout, CollsPerTstep;
   N_Vector y; //, e;
   N_Vector abstol;
 
@@ -221,32 +220,37 @@ int main(){
   /* 14. RUN SOLVER
   For NOUT iterations, call CVode, test for error then
   print and write results and iterate (if sucess) */
-  
-  tout = T0 + TSTEP;   // first output time = t0 + TSTEP
+
+  CollsPerTstep = TSTEP/(COLL_TSTEP);
+  tout = T0+TSTEP/CollsPerTstep;   // first output time = t0 + TSTEP/CollsPerTstep
   for (int iout = 0; iout < NOUT; iout++){
 
     PrintOutput(t, y);
-    
-    /* 14(a) Advance solution in time */
-    retval = CVode(cvode_mem, tout, y, &t, CV_NORMAL);
-    if (check_retval(&retval, "CVode", 1)) break;
 
-    if (retval == CV_ROOT_RETURN) {
-      retvalr = CVodeGetRootInfo(cvode_mem, rootsfound);
-      if (check_retval(&retvalr, "CVodeGetRootInfo", 1)) return(1);
-      PrintRootInfo(rootsfound[0],rootsfound[1]);
+    for(int istep=0; istep<ceil(CollsPerTstep); istep++)                 // have ceil(CollsPerTstep) collisions per output timestep
+    {
+      /* 14(a) Advance solution in time */
+      retval = CVode(cvode_mem, tout, y, &t, CV_NORMAL);
+      if (check_retval(&retval, "CVode", 1)) break;
+
+      if (retval == CV_ROOT_RETURN) {
+        retvalr = CVodeGetRootInfo(cvode_mem, rootsfound);
+        if (check_retval(&retvalr, "CVodeGetRootInfo", 1)) return(1);
+        PrintRootInfo(rootsfound[0],rootsfound[1]);
+      }
+
+      /* 14(b) Continute to next timestep */
+      if (retval == CV_SUCCESS) {
+        tout += TSTEP/CollsPerTstep;
+      }
+
     }
 
-    /* 14(b) Output solution and error */
+    /* 14(c) Output solution and error after every large timestep */
     //retval = ComputeError(t, y, e, &ec, udata);
     //if (check_retval(&retval, "ComputeError", 1)) break;
     WriteOutput(t, y, nsupers, ptr, YFID, SDFID, NULL);
     if (check_retval(&retval, "WriteOutput", 1)) break;
-
-    /* 14(c) Continute to next timestep */
-    if (retval == CV_SUCCESS) {
-      tout += TSTEP;
-    }
 
     retval = CVodePrintAllStats(cvode_mem, STSFID, SUN_OUTPUTFORMAT_CSV);
  

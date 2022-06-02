@@ -12,57 +12,46 @@ using namespace dlc;
 using namespace std;
 
 
-/* ---- constants for use in dp_dt function ----- */
-realtype dp_dt_const = dlc::W0*dlc::TIME0*DC::G/(DC::RGAS_DRY*dlc::TEMP0); 
-realtype lpsrate = 0.0062/dlc::TEMP0*dlc::W0*dlc::TIME0;
-realtype tempg = 273.15/dlc::TEMP0;
-realtype pg = 100000/dlc::P0;
-realtype zg = 0/(dlc::W0*dlc::TIME0);
-realtype gamma = DC::G/(DC::RGAS_DRY*0.0062)-1;
-/* ----------------------------------------------- */
+
+#define T0    RCONST(tspan[0]/dlc::TIME0)        // initial time (dimensionless)          
+#define TSTEP RCONST(tspan[1]/nout/dlc::TIME0)   // output time step (dimensionless)     
+#define NOUT  nout                               // number of output times
 
 
-
-
-/* Type : UserData
-   contains preconditioner blocks, pivot arrays, and problem constants */
-typedef struct {
-  realtype w, drop1, drop2, drop3;
-} *UserData;
-
-
-static void InitUserData(UserData data);
-realtype f(realtype z, void *user_data);
-
-
-
-int diffusion_factors(realtype* fkl, realtype* fdl, realtype temp, realtype p, realtype psat)
-{
-  realtype Thermk, Diffuse_v;
-  realtype Temp = temp*dlc::TEMP0;
-  realtype P = p*dlc::P0;
-  realtype Psat = psat*dlc::P0;
-
-  /* dimensionless factors for condensation-diffusional growth equation */
-  Thermk = 7.11756e-5*pow(Temp, 2.0) + Temp*4.38127686e-3;      // [eq.7.24 lohmann intro 2 clouds]
-  Diffuse_v = (4.012182971e-5 / P * pow(Temp,1.94))/DC::RGAS_V;
-
-  *fkl = (DC::LATENT_RGAS_V/Temp-1)*DC::LATENT_V/(Thermk*dlc::F0); 
-  *fdl = Temp/(Diffuse_v*Psat)/dlc::F0;
-    
-  
-  return 0;
-}
-
-
-
+#define COLL_TSTEP RCONST(coll_tstep/dlc::TIME0)                    // No. droplet collisions events
 int main(){
 
-  realtype fkl, fdl;
-  diffusion_factors(&fkl, &fdl, 1,1,611.2126978267946/P0);
-  cout << fkl << "pointed"<<endl;
-  cout << fdl <<endl;
+  realtype tout, CollsPerTstep;
+  
+  cout << TSTEP << endl;
+  cout << COLL_TSTEP<< endl;
+  CollsPerTstep = TSTEP/(COLL_TSTEP);
+
+  cout << CollsPerTstep << endl;
+
+
+  tout = T0;   // first output time = t0 + TSTEP
+  cout << "writing output data" << endl;
+  cout << "----- "<< T0*dlc::TIME0<<" -------" << endl;
+  for (int iout = 0; iout < NOUT; iout++){
+    
+    for(int j=0; j<ceil(CollsPerTstep); j++){
+      cout << "coliision event " << j << endl;
+      cout << "Advance solution in time" << endl;
+    
+    tout += TSTEP/CollsPerTstep;
+    cout << "tout "<< tout << endl;
+    }
+
+    cout << "writing output data, iout "<< iout << endl;
+    cout << "----- "<< tout*dlc::TIME0<<" -------" << endl;
+    //tout += TSTEP;
+
+  }
+
+
 }
+
 
 
 
