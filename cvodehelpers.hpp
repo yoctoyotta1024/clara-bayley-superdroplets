@@ -14,9 +14,9 @@ static int PrintINITData(string PROJNAME, int NEQ, N_Vector y, realtype rtol,
           N_Vector abstol, int NOUT, realtype T0, realtype T1, realtype TSTEP);
 static void PrintOutput(realtype t, N_Vector y);
 static void PrintRootInfo(int root_f1, int root_f2);
-static int HeaderWriteOutput(FILE* YFID, int index0, int indexend, bool fPrintTimeHeader);
+static int HeaderWriteOutput(FILE* YFID, FILE* SDFID);
 static int WriteOutput(realtype t, N_Vector y, int nsupers, 
-              FILE* YFID, FILE* SDFID, FILE* EFID);
+              Superdrop* ptr, FILE* YFID, FILE* SDFID, FILE* EFID);
 
 /* Private function to check function return values */
 static int check_retval(void *returnvalue, const char *funcname, int opt);
@@ -88,27 +88,23 @@ static void PrintRootInfo(int root_f1, int root_f2)
 }
 
 
-static int HeaderWriteOutput(FILE* YFID, int index0, int indexend, bool fPrintTimeHeader)
+static int HeaderWriteOutput(FILE* YFID, FILE* SDFID)
 {
-  string whtspc = ",    ";
-  string HEADERSTR;
+  string HEADERSTR, SDHEADERSTR;
   
   /* check file pointers */
   if (YFID == NULL) return(1);
 
   /* write header to file */
-  HEADERSTR = "/* columns are:  ";
-  if(fPrintTimeHeader){
-  HEADERSTR += "t"+whtspc;
-  }
-  for(int i=index0; i<=indexend; i++){
-    HEADERSTR += "y"+to_string(i)+whtspc;
-  }
-  HEADERSTR += " */\n";
+  HEADERSTR = "/* columns are dimensionless:  t,    P (y1),    T (y2),"
+              "    qv (y3),   qc (y4),     */\n";
+  SDHEADERSTR = "/* columns are dimensionless Superdroplet: SD eps_1, "
+  "eps_2, eps_3, ... eps_nsupers, r_1, r_2, r_3, ... r_nsupers, "
+  "m_sol_1, m_sol_2, m_sol_3, ... m_sol_nsupers   */\n";
 
   /* output header string to disk */
   fprintf(YFID, "%s", HEADERSTR.c_str());
-
+  fprintf(SDFID, "%s", SDHEADERSTR.c_str());
 
   return(0);
 }
@@ -118,7 +114,7 @@ static int HeaderWriteOutput(FILE* YFID, int index0, int indexend, bool fPrintTi
 
 /* Output the solution to disk (or terminal) */
 static int WriteOutput(realtype t, N_Vector y, int nsupers, 
-                      FILE* YFID, FILE* SDFID, FILE* EFID)
+           Superdrop* ptr, FILE* YFID, FILE* SDFID, FILE* EFID)
 {
   realtype *ydata = N_VGetArrayPointer(y);
   //realtype *edata = N_VGetArrayPointer(e);
@@ -133,13 +129,21 @@ static int WriteOutput(realtype t, N_Vector y, int nsupers,
   /* output superdroplet solution to disk if SDFID!=NULL */
   if(SDFID)
   {
+    for(int i=0; i<nsupers; i++) 
+    {
+      fprintf(SDFID, "%24.14e,", (ptr+i) -> eps);           //write SD eps output in columns[0:nsuper]
+    }
+    for(int i=0; i<nsupers; i++)
+    {
+      fprintf(SDFID, "%24.14e,", (ptr+i) -> r);              // write SD r output in columns[nsuper:2*nsuper]
+    }
     for(int i=0; i<nsupers-1; i++)
     {
-      fprintf(SDFID, "%24.14e,", ydata[i+4]);
+      fprintf(SDFID, "%24.14e,", (ptr+i) -> m_sol);          // SD m_sol output in columns[2*nsuper:]
     }
-      fprintf(SDFID, "%24.14e\n", ydata[nsupers+3]);
+    fprintf(SDFID, "%24.14e\n", (ptr+nsupers-1) -> m_sol);
   }
-  
+
   // /* output error to disk */
   // if(EFID)
   // {

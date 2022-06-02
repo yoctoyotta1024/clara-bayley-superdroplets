@@ -101,8 +101,8 @@ def lnnormal_dist(r, n_a, mu, sig):
 ###     functions for plotting droplet    ###
 ###          radii distribution           ###
 
-def plot_histogram(data, freq, span, nbins, 
-          lab=None, c='k', plotdiff=False, ax=None):
+def plot_histogram(ax, data, freq, 
+          span, nbins, lab=None, c='k'):
   
   if ax==None:
     fig, ax = plt.subplots(figsize=(6,4))
@@ -183,8 +183,8 @@ with open('./'+INITDROPSCSV, 'w', encoding='UTF8') as f:
 
 print('Plotting Initial Droplet No. Concentration Distribution:\n')
 fig, ax = plt.subplots(figsize=(9,6))
-plot_histogram(R0*r0, eps*N0, rspan, nsupers, 
-              lab='superdroplets', c='C0', ax=ax)          
+plot_histogram(ax, R0*r0, eps*N0, rspan, nsupers, 
+              lab='superdroplets', c='C0')          
 
 # plot lognormal curves with x10 more bins for reference
 for d in range(len(mus)):

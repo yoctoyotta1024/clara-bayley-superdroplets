@@ -51,6 +51,7 @@ const realtype  W = iW/dlc::W0;                  // dimensionless w velocity for
 #define NOUT  nout                               // number of output times
 #define ZERO  RCONST(0.0)
 
+#define COLL_DT RCONST(coll_dt/dlc::TIME0)       // time between each droplet collisions event (dimless)
 
 
 
@@ -211,9 +212,8 @@ int main(){
   YFID = fopen((SAVENAME+"_sol.csv").c_str(),"w");
   SDFID = fopen((SAVENAME+"_SDsol.csv").c_str(),"w");
   //EFID = fopen((SAVENAME+"_err.csv".c_str(),"w");
-  HeaderWriteOutput(YFID, 1, 4, true);   
-  HeaderWriteOutput(SDFID, 5, nsupers+4, false);   
-  WriteOutput(T0, y, nsupers, YFID, SDFID, NULL); 
+  HeaderWriteOutput(YFID, SDFID);   
+  WriteOutput(T0, y, nsupers, ptr, YFID, SDFID, NULL); 
 
   /* Open Integration Statistics File in preparation for writing */ 
   STSFID = fopen(STATSNAME.c_str(), "w");
@@ -240,7 +240,7 @@ int main(){
     /* 14(b) Output solution and error */
     //retval = ComputeError(t, y, e, &ec, udata);
     //if (check_retval(&retval, "ComputeError", 1)) break;
-    WriteOutput(t, y, nsupers, YFID, SDFID, NULL);
+    WriteOutput(t, y, nsupers, ptr, YFID, SDFID, NULL);
     if (check_retval(&retval, "WriteOutput", 1)) break;
 
     /* 14(c) Continute to next timestep */
