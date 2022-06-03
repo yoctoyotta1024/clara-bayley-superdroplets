@@ -1,11 +1,12 @@
 // run with g++ -I /usr/local/sundials-6/include  testing.cpp -std=c++11 
 #include <iostream>
-#include <cmath>
 #include <vector>
 
 #include <cvode/cvode.h>               /* prototypes for CVODE fcts., consts.  */
 #include "constants.hpp"
 #include "init.hpp"
+#include "superdroplets.hpp"
+#include "collisions.hpp"
 
 namespace dlc = dimless_constants;
 using namespace dlc;
@@ -16,41 +17,62 @@ using namespace std;
 #define T0    RCONST(tspan[0]/dlc::TIME0)        // initial time (dimensionless)          
 #define TSTEP RCONST(tspan[1]/nout/dlc::TIME0)   // output time step (dimensionless)     
 #define NOUT  nout                               // number of output times
-
-
 #define COLL_TSTEP RCONST(coll_tstep/dlc::TIME0)                    // No. droplet collisions events
+
+#define SDloop(i,nsupers) for(int i=0; i<nsupers; i++)  //for loop over all superdroplets
+
+
+
+
 int main(){
 
-  realtype tout, CollsPerTstep;
-  
-  cout << TSTEP << endl;
-  cout << COLL_TSTEP<< endl;
-  CollsPerTstep = TSTEP/(COLL_TSTEP);
+  int nhalf = floor(nsupers/2);
+  int scale_p = nsupers*(nsupers-1)/(2*nhalf);
 
-  cout << CollsPerTstep << endl;
+  int retval2;
+  string INITDROPSCSV;
+  INITDROPSCSV = "dimlessSDinit.csv";                                       // file to read for SD eps, r and m_sol initialisation 
 
-
-  tout = T0;   // first output time = t0 + TSTEP
-  cout << "writing output data" << endl;
-  cout << "----- "<< T0*dlc::TIME0<<" -------" << endl;
-  for (int iout = 0; iout < NOUT; iout++){
-    
-    for(int j=0; j<ceil(CollsPerTstep); j++){
-      cout << "coliision event " << j << endl;
-      cout << "Advance solution in time" << endl;
-    
-    tout += TSTEP/CollsPerTstep;
-    cout << "tout "<< tout << endl;
-    }
-
-    cout << "writing output data, iout "<< iout << endl;
-    cout << "----- "<< tout*dlc::TIME0<<" -------" << endl;
-    //tout += TSTEP;
-
+  /* Initialise Superdroplets using INITDROPSCSV .csv file */
+  Superdrop drops_arr[nsupers];
+  SDloop(i, nsupers) 
+  {
+    drops_arr[i] = Superdrop(iRho_l, iRho_sol, iMr_sol, iIONIC); 
   }
+  Superdrop* ptr; 
+  ptr = &drops_arr[0];
+  initialise_Superdrop_instances(INITDROPSCSV, ptr, nsupers);
+  
 
+  vector<int> numvec(nsupers);
+  SDloop(i, nsupers){
+    numvec[i] = i;
+    cout << i << ": " << ptr + i << endl;
+  }
+  cout << "initial adresses" << endl;
 
+  SDloop(i, nsupers){
+    numvec[i] = i;
+    cout << ptr + i  <<" initial eps: " << (ptr + i) -> eps;
+    cout << ", initial r: " << (ptr + i) -> r;
+    cout << ", initial m_sol: " << (ptr + i) -> m_sol << endl;
+  } 
+  cout << "---" << endl;
+  retval2 = collide_droplets(nsupers, nhalf, scale_p, ptr, numvec);
+  cout << "---" << endl;
+
+  SDloop(i, nsupers){
+    numvec[i] = i;
+    cout << ptr + i  << " eps: " << (ptr + i) -> eps;
+    cout << ", r: " << (ptr + i) -> r;
+    cout << ", m_sol: " << (ptr + i) -> m_sol << endl;
+  } 
+
+  return 0;
 }
+
+
+
 
 
 

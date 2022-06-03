@@ -13,7 +13,7 @@ using namespace std;
 static int PrintINITData(string PROJNAME, int NEQ, N_Vector y, realtype rtol,
           N_Vector abstol, int NOUT, realtype T0, realtype T1, realtype TSTEP);
 static void PrintOutput(realtype t, N_Vector y);
-static void PrintRootInfo(int root_f1, int root_f2);
+//static void PrintRootInfo(int root_f1, int root_f2);
 static int HeaderWriteOutput(FILE* YFID, FILE* SDFID);
 static int WriteOutput(realtype t, N_Vector y, int nsupers, 
               Superdrop* ptr, FILE* YFID, FILE* SDFID, FILE* EFID);
@@ -27,7 +27,7 @@ static int check_retval(void *returnvalue, const char *funcname, int opt);
 /* Some Definitions */
 #define Ith(v,i)    NV_Ith_S(v,i-1)         /* i-th vector component i=1..NEQ */
 #define IJth(A,i,j) SM_ELEMENT_D(A,i-1,j-1) /* (i,j)-th matrix component i,j=1..NEQ */
-
+#define SDloop(i,nsupers) for(int i=0; i<nsupers; i++)  //for loop over all superdroplets
 
 
 static int PrintINITData(string PROJNAME, int NEQ, N_Vector y, realtype rtol,
@@ -80,12 +80,13 @@ y4 = Ith(y,4);
 
 
 
-static void PrintRootInfo(int root_f1, int root_f2)
-{
-  printf("    rootsfound[] = %3d %3d\n", root_f1, root_f2);
+// static void PrintRootInfo(int root_f1, int root_f2)
+// {
+//   printf("    rootsfound[] = %3d %3d\n", root_f1, root_f2);
 
-  return;
-}
+//   return;
+// }
+
 
 
 static int HeaderWriteOutput(FILE* YFID, FILE* SDFID)
@@ -129,15 +130,15 @@ static int WriteOutput(realtype t, N_Vector y, int nsupers,
   /* output superdroplet solution to disk if SDFID!=NULL */
   if(SDFID)
   {
-    for(int i=0; i<nsupers; i++) 
+    SDloop(i, nsupers)
     {
       fprintf(SDFID, "%24.14e,", (ptr+i) -> eps);           //write SD eps output in columns[0:nsuper]
     }
-    for(int i=0; i<nsupers; i++)
+    SDloop(i, nsupers)
     {
       fprintf(SDFID, "%24.14e,", (ptr+i) -> r);              // write SD r output in columns[nsuper:2*nsuper]
     }
-    for(int i=0; i<nsupers-1; i++)
+    SDloop(i, nsupers-1)
     {
       fprintf(SDFID, "%24.14e,", (ptr+i) -> m_sol);          // SD m_sol output in columns[2*nsuper:]
     }
@@ -154,9 +155,6 @@ static int WriteOutput(realtype t, N_Vector y, int nsupers,
 
   return(0);
 }
-
-
-
 
 
 
@@ -197,8 +195,6 @@ static int check_retval(void *returnvalue, const char *funcname, int opt)
 
   return(0);
 }
-
-
 
 
 

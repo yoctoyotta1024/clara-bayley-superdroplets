@@ -18,5 +18,5 @@ dep/odesolver.o: odesolver.cpp \
   /usr/local/sundials-6/include/sunmatrix/sunmatrix_dense.h \
   /usr/local/sundials-6/include/sunlinsol/sunlinsol_dense.h \
   /usr/local/sundials-6/include/sundials/sundials_dense.h init.hpp \
-  constants.hpp superdropletclasses.hpp differentials.hpp \
+  constants.hpp superdroplets.hpp differentials.hpp collisions.hpp \
   cvodehelpers.hpp

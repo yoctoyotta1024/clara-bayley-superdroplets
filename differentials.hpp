@@ -13,6 +13,7 @@ namespace dlc = dimless_constants;
   the range [1..NEQ] (and NEQ is No. of equations ie. variables). 
 */
 #define Ith(v,i)    NV_Ith_S(v,i-1)         // i-th vector component i=1..NEQ
+#define SDloop(i,nsupers) for(int i=0; i<nsupers; i++)  //for loop over all superdroplets
 #define ZERO  RCONST(0.0)
 
 
@@ -217,7 +218,7 @@ static int condensation_droplet_growth(N_Vector ydot, realtype* p,
   /* radial growth/shrink each droplet 
   [eq.7.27 lohmann intro 2 clouds] */
   fkl=0.0; fdl=0.0; tot_drhov=0.0;
-  for(int i=0; i<nsupers; i++)
+  SDloop(i, nsupers)
   { 
     r = (ptr+i) -> r;
     eps = (ptr+i) -> eps;
@@ -274,7 +275,7 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void* user_data)
   temp = Ith(y,2);
   qv = Ith(y,3);
   qc = Ith(y,4);
-  for(int i=0; i<nsupers; i++)
+  SDloop(i, nsupers)
   {
     (ptr+i) -> r = Ith(y,5+i);
   }

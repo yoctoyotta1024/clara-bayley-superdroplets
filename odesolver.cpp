@@ -8,8 +8,9 @@
 
 #include "init.hpp"
 #include "constants.hpp"
-#include "superdropletclasses.hpp"
+#include "superdroplets.hpp"
 #include "differentials.hpp"
+#include "collisions.hpp"
 // #include "jacobian.hpp"               // file with Jacobian function (is using optional step 12.)
 #include "cvodehelpers.hpp"
 
@@ -30,6 +31,7 @@ using namespace dlc;
 #define Ith(v,i)    NV_Ith_S(v,i-1)         // i-th vector component i=1..NEQ
 //#define IJth(A,i,j) SM_ELEMENT_D(A,i-1,j-1) // (i,j)-th matrix component i,j=1..NEQ
 
+#define SDloop(i,nsupers) for(int i=0; i<nsupers; i++)  //for loop over all superdroplets
 
 
 
@@ -77,9 +79,9 @@ int main(){
   SUNMatrix A;
   SUNLinearSolver LS;
   void *cvode_mem;
-  int retval;           /* reusable return flag */
-  int retvalr;
-  int rootsfound[2];
+  int retval, retval2;          // reusable return flags
+  //int retvalr;           
+  //int rootsfound[2];
 
   // Create problem stuff
   realtype t, tout, CollsPerTstep;
@@ -88,8 +90,8 @@ int main(){
 
   // Output files to write to
   FILE* STSFID;                // integration stats output file 
-  FILE *YFID = NULL;         // solution output file 
-  FILE *SDFID = NULL;         // solution output file 
+  FILE *YFID = NULL;           // solution output file 
+  FILE *SDFID = NULL;          // solution output file 
   //FILE *EFID = NULL;         // error output file   
 
   // initialise vectors, matrix and solver
@@ -108,7 +110,7 @@ int main(){
 
   /* Initialise Superdroplets using INITDROPSCSV .csv file */
   Superdrop drops_arr[nsupers];
-  for(int i=0; i<nsupers; i++)
+  SDloop(i, nsupers)
   {
     drops_arr[i] = Superdrop(iRho_l, iRho_sol, iMr_sol, iIONIC); 
   }
@@ -118,6 +120,14 @@ int main(){
   
   /* set values of pointers given in user_data to f() ODE function */
   InitUserData(data, W, doCond, nsupers, ptr);
+
+  /* Get nhalf, scale_p and pvec (index list) given nsupers */
+  int nhalf = floor(nsupers/2);
+  int scale_p = nsupers*(nsupers-1)/(2*nhalf);
+  vector<int> pvec(nsupers);
+  SDloop(i, nsupers){
+    pvec[i] = i;
+  }
 
   /* 0. Create the SUNDIALS context */
   retval = SUNContext_Create(NULL, &sunctx);
@@ -140,7 +150,7 @@ int main(){
   Ith(y,2) = Y2;
   Ith(y,3) = Y3;
   Ith(y,4) = Y4;
-  for(int i=0; i<nsupers; i++)
+  SDloop(i, nsupers) 
   {
     Ith(y,i+5) = drops_arr[i].getR0();
   }
@@ -153,7 +163,7 @@ int main(){
   {
     Ith(abstol,i) = ATOLy1to4;
   }
-  for(int i=0; i<nsupers; i++)
+  SDloop(i, nsupers)
   {
     Ith(abstol,i+5) = ATOLy5plus;
   }
@@ -223,6 +233,7 @@ int main(){
 
   CollsPerTstep = TSTEP/(COLL_TSTEP);
   tout = T0+TSTEP/CollsPerTstep;   // first output time = t0 + TSTEP/CollsPerTstep
+  retval2 = 0;
   for (int iout = 0; iout < NOUT; iout++){
 
     PrintOutput(t, y);
@@ -233,20 +244,25 @@ int main(){
       retval = CVode(cvode_mem, tout, y, &t, CV_NORMAL);
       if (check_retval(&retval, "CVode", 1)) break;
 
-      if (retval == CV_ROOT_RETURN) {
-        retvalr = CVodeGetRootInfo(cvode_mem, rootsfound);
-        if (check_retval(&retvalr, "CVodeGetRootInfo", 1)) return(1);
-        PrintRootInfo(rootsfound[0],rootsfound[1]);
-      }
+      // if (retval == CV_ROOT_RETURN) {
+      //   retvalr = CVodeGetRootInfo(cvode_mem, rootsfound);
+      //   if (check_retval(&retvalr, "CVodeGetRootInfo", 1)) return(1);
+      //   PrintRootInfo(rootsfound[0],rootsfound[1]);
+      // }
 
-      /* 14(b) Continute to next timestep */
-      if (retval == CV_SUCCESS) {
+      /* 14(b) Simulate Superdroplet Collisions */
+      if (doColl){
+        retval2 = collide_droplets(nsupers, nhalf, scale_p, ptr, pvec);
+      }
+      
+      /* 14(c) Continute to next timestep */
+      if (retval == CV_SUCCESS && retval2 == CV_SUCCESS) {
         tout += TSTEP/CollsPerTstep;
       }
 
     }
 
-    /* 14(c) Output solution and error after every large timestep */
+    /* 14(d) Output solution and error after every large timestep */
     //retval = ComputeError(t, y, e, &ec, udata);
     //if (check_retval(&retval, "ComputeError", 1)) break;
     WriteOutput(t, y, nsupers, ptr, YFID, SDFID, NULL);
