@@ -32,6 +32,7 @@ def read_cpp_into_floats(filename):
           constants[symbol] = float(line[ind1+2:ind2])
         except ValueError:
           notfloats[symbol] = line[ind1+2:ind2]
+  
   print("---- Constants read from ", filename, "-----")
   for c in constants:
     print(c, "=", constants[c])

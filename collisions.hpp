@@ -6,6 +6,7 @@
 #include "superdroplets.hpp"
 
 
+namespace dlc = dimless_constants;
 using namespace std;
 
 #define SDloop(i,nsupers) for(int i=0; i<nsupers; i++)  //for loop over all superdroplets
@@ -21,7 +22,7 @@ int collide_droplets(int nsupers, int nhalf, int scale_p,
   double phi = 0;
   int gamma = 0;
 
-  double prob;
+  double prob, prob_jk;
   double delta_eps, delta_r, delta_m_sol;
 
   
@@ -50,8 +51,10 @@ int collide_droplets(int nsupers, int nhalf, int scale_p,
     }
 
     /* 2. Determine probability of coalescence */
-    prob = dis(gen)*scale_p*1e-3;           // scaled probability of pair coalescence (p_alpha)
-    
+    //prob_jk = dis(gen)*1e-4;
+    //prob = scale_p*prob_jk;           // scaled probability of pair coalescence (p_alpha)
+    //prob_jk = 1.5*(p1->m() + p2->m())*dlc::RHO0*(pow(dlc::R0, 3.0))/1e6;
+    prob = scale_p*max(p1->eps, p2->eps)*prob_jk;     // scaled probability of pair coalescence (p_alpha)
 
     /* 3. Monte Carlo Step: randomly determine gamma of coalescence */
     phi = dis(gen);                    // random number phi in range [0,1]
@@ -85,8 +88,8 @@ int collide_droplets(int nsupers, int nhalf, int scale_p,
         p1 -> r = delta_r;
         p2 -> r = delta_r; 
         
-        // p1 -> m_sol = delta_m_sol;
-        // p2 -> m_sol = delta_m_sol; 
+        p1 -> m_sol = delta_m_sol;
+        p2 -> m_sol = delta_m_sol; 
       }
 
       /* 3.(option a) if eps1 > gamma*eps2 collide to grow 
@@ -102,7 +105,7 @@ int collide_droplets(int nsupers, int nhalf, int scale_p,
         p1 -> eps = delta_eps;
 
         p2 -> r = delta_r;
-        //p2 -> m_sol = delta_m_sol;
+        p2 -> m_sol = delta_m_sol;
 
       }
 

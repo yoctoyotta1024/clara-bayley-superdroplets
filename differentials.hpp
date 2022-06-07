@@ -226,7 +226,6 @@ static int condensation_droplet_growth(N_Vector ydot, realtype* p,
     b = (ptr+i) -> bkohler_factor();
     diffusion_factors(&fkl, &fdl, *p, *temp, psat);
     dr = (s_ratio-1 -a/r + b/pow(r, 3.0)) / (dlc::Rho_l * (fkl+fdl) * r);
-    //dr = (-a/r + b/pow(r, 3.0)) / (dlc::Rho_l * (fkl+fdl) * r);
     //dr = (s_ratio-1) / (dlc::Rho_l * (fkl+fdl) * r);
     
     /*  if droplets are dry, do not shrink further */
@@ -280,11 +279,10 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void* user_data)
     (ptr+i) -> r = Ith(y,5+i);
   }
   
-
-  dp_dt(t, ydot, w);     
-
-  dtemp_dt_adia(ydot, p, temp, qv, qc);    
-
+  if(doExpand){
+    dp_dt(t, ydot, w);     
+    dtemp_dt_adia(ydot, p, temp, qv, qc);    
+  }
 
   if(doCond){
     condensation_droplet_growth(ydot, &p, &temp, &qv, &qc, ptr, t);

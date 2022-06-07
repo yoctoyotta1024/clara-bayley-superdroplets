@@ -14,7 +14,8 @@ double temp_init   = 273.15;                     // initial parcel temperature [
 double p_init      = 100000;                     // initial pressure [Pa]
 double relh_init   = 60;                         // initial relative humidity (%)
 double qc_init     = 0;                          // initial liquid water content []
-bool doCond        = true;                       // enable condensation droplet growth
+bool doExpand      = false;                       // enable condensation droplet growth
+bool doCond        = false;                       // enable condensation droplet growth
 bool doColl        = true;                       // enable collisions of superdroplets
 
 /* integration params */
