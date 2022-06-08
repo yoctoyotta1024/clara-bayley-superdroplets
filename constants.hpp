@@ -25,7 +25,6 @@ const double RHO_L        = 1000;            // density of liquid water condensi
 //const double RHO_L        = 996.57;            // density of liquid water condensing [kg/m^3] (at 300K)
 const double DYNVISC      = 18.45*1e-6;        // dynamic viscosity of air [Pa s] (at 300K)
 
-//const double RHO_SOL      = 1000;              // density of (dry) areosol [Kg/m^3]
 const double RHO_SOL      = 2200;              // density of (dry) areosol [Kg/m^3]
 const double MR_SOL       = 0.058443;          //  molecular mass of areosol [Kg/mol] 
 const int IONIC           = 2;                 //  degree ionic dissociation (van't Hoff factor) []

@@ -7,7 +7,7 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 
 # This program built for i386-apple-darwin11.3.0
 
-# Make data base, printed on Wed Jun  8 08:44:13 2022
+# Make data base, printed on Wed Jun  8 23:48:26 2022
 
 # Variables
 
@@ -46,7 +46,7 @@ __CFBundleIdentifier = com.microsoft.VSCode
 # environment
 INFOPATH = /opt/homebrew/share/info:
 # environment
-VSCODE_IPC_HOOK_EXTHOST = /var/folders/g4/p1fz4j0s4mq8r261ltv6__vc0000gn/T/vscode-ipc-ecc32ce7-abf5-4d4e-bd57-e18e7b213343.sock
+VSCODE_IPC_HOOK_EXTHOST = /var/folders/g4/p1fz4j0s4mq8r261ltv6__vc0000gn/T/vscode-ipc-e516dca8-b4cb-4ea0-9cb6-da7545ec32b6.sock
 # makefile (from `Makefile', line 3)
 CPP = g++
 # environment
@@ -62,7 +62,6 @@ ELECTRON_RUN_AS_NODE = 1
 # makefile (from `Makefile', line 7)
 LDFLAGS = 
 # default
- 
 .FEATURES := target-specific order-only second-expansion else-if archives jobserver check-symlink
 # makefile (from `Makefile', line 15)
 CPPSOURCES_DEPENDENCIES = 
@@ -171,7 +170,6 @@ OBJDIR = obj
 # environment
 LC_ALL = C
 # makefile (from `Makefile', line 33)
- 
 LIBRARIES = -lsundials_cvode -lsundials_nvecserial -lsundials_nvecmanyvector ${LIBS}
 # environment
 CONDA_PYTHON_EXE = /Users/yoctoyotta1024/opt/anaconda3/bin/python
@@ -196,13 +194,13 @@ OBJECTS = ${CPPSOURCES:=.o}
 # environment
 CONDA_PREFIX = /Users/yoctoyotta1024/opt/anaconda3
 # environment
-VSCODE_PID = 819
+VSCODE_PID = 23944
 # environment
 _CE_CONDA = 
 # environment
 LANG = C
 # variable set hash-table stats:
-# Load=94/1024=9%, Rehash=0, Collisions=2/165=1%
+# Load=94/1024=9%, Rehash=0, Collisions=2/141=1%
 
 # Pattern-specific Variable Values
 
@@ -210,9 +208,9 @@ LANG = C
 
 # Directories
 
-# . (device 16777234, inode 1354385): 36 files, no impossibilities.
+# . (device 16777234, inode 1354385): 29 files, no impossibilities.
 
-# 36 files, no impossibilities in 1 directories.
+# 29 files, no impossibilities in 1 directories.
 
 # Implicit Rules
 
@@ -235,11 +233,27 @@ dep/%.d: %.cpp
 obj/odesolver.o: odesolver.cpp
 #  Implicit rule search has been done.
 #  Implicit/static pattern stem: `odesolver'
-#  Last modified 2022-06-07 15:19:37
+#  File does not exist.
 #  File has been updated.
-#  Successfully updated.
+#  Needs to be updated (-q is set).
+# automatic
+# @ := obj/odesolver.o
+# automatic
+# % := 
+# automatic
+# * := odesolver
+# automatic
+# + := odesolver.cpp
+# automatic
+# | := 
+# automatic
+# < := odesolver.cpp
+# automatic
+# ^ := odesolver.cpp
+# automatic
+# ? := odesolver.cpp
 # variable set hash-table stats:
-# Load=0/32=0%, Rehash=0, Collisions=0/0=0%
+# Load=8/32=25%, Rehash=0, Collisions=1/21=5%
 #  commands to execute (from `Makefile', line 39):
 	@mkdir -p ${OBJDIR}
 	${CPP} ${CPPFLAGS} ${CFLAGS} ${INCLUDES}  -o $@ -c $<
@@ -252,7 +266,7 @@ all: targets
 #  File has been updated.
 #  Needs to be updated (-q is set).
 # variable set hash-table stats:
-# Load=0/32=0%, Rehash=0, Collisions=0/35=0%
+# Load=0/32=0%, Rehash=0, Collisions=0/11=0%
 
 .PHONY: clean` cleandep cleanALL
 #  Implicit rule search has not been done.
@@ -262,7 +276,7 @@ all: targets
 # Not a target:
 odesolver.cpp:
 #  Implicit rule search has been done.
-#  Last modified 2022-06-03 17:11:13
+#  Last modified 2022-06-08 22:11:16
 #  File has been updated.
 #  Successfully updated.
 # variable set hash-table stats:
@@ -283,18 +297,11 @@ Makefile:
 # variable set hash-table stats:
 # Load=0/32=0%, Rehash=0, Collisions=0/0=0%
 
-dep/odesolver.d: odesolver.cpp
-#  Implicit rule search has been done.
-#  Implicit/static pattern stem: `odesolver'
-#  Last modified 2022-06-08 08:44:13
-#  File has been updated.
-#  Successfully updated.
-# variable set hash-table stats:
-# Load=0/32=0%, Rehash=0, Collisions=0/0=0%
-#  commands to execute (from `Makefile', line 44):
-	@mkdir -p ${DEPDIR}
-	${CPP} ${CPPFLAGS} ${CFLAGS} ${INCLUDES} $< -MM -MT $(@:%.d=%.o) >$@
-	
+# Not a target:
+dep/odesolver.d:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
 
 odesolver.o:
 #  Implicit rule search has not been done.
@@ -304,6 +311,7 @@ odesolver.o:
 # Not a target:
 .DEFAULT:
 #  Implicit rule search has not been done.
+ 
 #  Modification time never checked.
 #  File has not been updated.
 
@@ -318,28 +326,11 @@ cleandep:
 
 targets: obj/odesolver.o dep/odesolver.d
 #  Implicit rule search has not been done.
-#  Implicit/static pattern stem: `'
 #  File does not exist.
 #  File has been updated.
 #  Needs to be updated (-q is set).
-# automatic
-# @ := targets
-# automatic
-# % := 
-# automatic
-# * := 
-# automatic
-# + := obj/odesolver.o dep/odesolver.d
-# automatic
-# | := 
-# automatic
-# < := obj/odesolver.o
-# automatic
-# ^ := obj/odesolver.o dep/odesolver.d
-# automatic
-# ? := obj/odesolver.o dep/odesolver.d
 # variable set hash-table stats:
-# Load=8/32=25%, Rehash=0, Collisions=3/43=7%
+# Load=0/32=0%, Rehash=0, Collisions=0/11=0%
 #  commands to execute (from `Makefile', line 53):
 	@for i in ${CPPSOURCES} ; do \
 	echo "${CPP} -o $${i} ${OBJDIR}/$${i}.o ${OBJECTS_DEPENDENCIES} ${CPPFLAGS} ${CFLAGS} ${LDFLAGS} ${INCLUDES} -L${libdir} ${LIBRARIES} ${LINKFLAGS}" ; \
@@ -380,7 +371,7 @@ cleanALL:
 	
 
 # files hash-table stats:
-# Load=14/1024=1%, Rehash=0, Collisions=0/42=0%
+# Load=14/1024=1%, Rehash=0, Collisions=0/38=0%
 # VPATH Search Paths
 
 # No `vpath' search paths.
@@ -392,6 +383,6 @@ cleanALL:
 # strcache size: total = 4096 / max = 4096 / min = 4096 / avg = 4096
 # strcache free: total = 4087 / max = 4087 / min = 4087 / avg = 4087
 
-# Finished Make data base on Wed Jun  8 08:44:13 2022
+# Finished Make data base on Wed Jun  8 23:48:26 2022
 
  

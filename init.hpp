@@ -15,9 +15,9 @@ double temp_init   = 273.15;                     // initial parcel temperature [
 double p_init      = 100000;                     // initial pressure [Pa]
 double relh_init   = 60;                         // initial relative humidity (%)
 double qc_init     = 0;                          // initial liquid water content []
-bool doExpand      = true;                       // enable condensation droplet growth
-bool doCond        = true;                       // enable condensation droplet growth
-bool doColl        = false;                       // enable collisions of superdroplets
+bool doExpand      = false;                       // enable condensation droplet growth
+bool doCond        = false;                       // enable condensation droplet growth
+bool doColl        = true;                       // enable collisions of superdroplets
 
 /* integration params */
 double tspan[2]    = {0, 4000};                   // time span of integration [s]
@@ -28,7 +28,8 @@ double atols[2]    = {1e-6, 1e-6};                // absolute tols for [parcel t
 
 /* droplet init params. First create superdroplet eps, r0
 and m_sol data using python "create_superdrop_init.py" */
-int nsupers        = 20;                           // no. distinct superdrop objects in array
+//int nsupers        = 32768;                           // no. distinct superdrop objects in array
+int nsupers        = 8192;                           // no. distinct superdrop objects in array
 double iRho_l      = dlc::Rho_l;
 double iRho_sol    = dlc::Rho_sol;
 double iMr_sol     = dlc::Mr_sol;
