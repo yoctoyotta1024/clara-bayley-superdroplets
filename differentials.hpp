@@ -38,7 +38,8 @@ const realtype gamma = DC::G/(DC::RGAS_DRY*0.0062)-1;
 /* ----------------------------------------------- */
 
 // /* ---- constants for use in diffusion growth ----- */
-// const realtype dqc_dt_const = 4*M_PI*dlc::Rho_l*dlc::N0*pow(dlc::R0,3.0)/dlc::Rho_dry;
+//const realtype dm_dt_const = 4*M_PI*dlc::Rho_l*dlc::EPS0*pow(dlc::R0, 3.0);
+const realtype dm_dt_const = 4*M_PI*dlc::Rho_l*pow(dlc::R0, 3.0)/iVol;
 // /* ----------------------------------------------- */
 
 
@@ -51,16 +52,18 @@ typedef struct {
   realtype w;
   bool doCond;
   int nsupers;
+  realtype Vol;
   Superdrop* ptr;
 } *UserData;
 
 
-static void InitUserData(UserData data, 
-    realtype w, bool doCond, int nsupers, Superdrop* ptr)
+static void InitUserData(UserData data, realtype w,
+ bool doCond, int nsupers, realtype Vol, Superdrop* ptr)
 {
   data->w = w;
   data->doCond= doCond;
   data->nsupers = nsupers;
+  data->Vol = Vol;
   data->ptr = ptr;
 }
 
@@ -205,7 +208,8 @@ static realtype dtemp_dt_adia(N_Vector ydot, realtype p,
  */
 
 static int condensation_droplet_growth(N_Vector ydot, realtype* p, 
-    realtype* temp, realtype* qv, realtype*  qc, Superdrop* ptr, realtype t)
+    realtype* temp, realtype* qv, realtype*  qc, Superdrop* ptr, realtype t,
+    int nsupers, realtype Vol)
 {
   realtype dr, psat, s_ratio, r, eps, a, b, fkl, fdl;
   realtype tot_drhov, dqc, dqv, dtemp_c;
@@ -236,9 +240,9 @@ static int condensation_droplet_growth(N_Vector ydot, realtype* p,
       Ith(ydot, 5+i) = dr;
     }
 
-    realtype dm_dt_const = 4*M_PI*dlc::Rho_l*dlc::N0*pow(dlc::R0, 3.0);
+
     realtype dm = dm_dt_const*pow(r,2.0)*Ith(ydot, 5+i)*eps;
-    tot_drhov=tot_drhov+dm;                               //*4*pi*rho_l*(R0**3*N0) = drho_condensed_vapour/dt
+    tot_drhov=tot_drhov+dm;                               //drho_condensed_vapour/dt
   }
   dqc = Ith(ydot, 4) = tot_drhov/dlc::Rho_dry; 
   dqv = Ith(ydot, 3) = -dqc; 
@@ -264,10 +268,12 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void* user_data)
   realtype p, temp, qv, qc, w;
   bool doCond;
   int nsupers;
+  realtype Vol;
   Superdrop* ptr;
   w = data -> w;
   doCond = data -> doCond;
   nsupers = data -> nsupers;
+  Vol = data -> Vol;
   ptr = data -> ptr;
   
   p = Ith(y,1); 
@@ -285,7 +291,7 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void* user_data)
   }
 
   if(doCond){
-    condensation_droplet_growth(ydot, &p, &temp, &qv, &qc, ptr, t);
+    condensation_droplet_growth(ydot, &p, &temp, &qv, &qc, ptr, t, nsupers, Vol);
   }
 
 

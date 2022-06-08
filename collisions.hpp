@@ -51,8 +51,7 @@ int collide_droplets(int nsupers, int nhalf, int scale_p,
     }
 
     /* 2. Determine probability of coalescence */
-    //prob_jk = dis(gen)*1e-4;
-    //prob = scale_p*prob_jk;           // scaled probability of pair coalescence (p_alpha)
+    prob_jk = dis(gen);
     //prob_jk = 1.5*(p1->m() + p2->m())*dlc::RHO0*(pow(dlc::R0, 3.0))/1e6;
     prob = scale_p*max(p1->eps, p2->eps)*prob_jk;     // scaled probability of pair coalescence (p_alpha)
 

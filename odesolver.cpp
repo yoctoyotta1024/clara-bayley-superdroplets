@@ -43,6 +43,7 @@ using namespace dlc;
 #define Y2    RCONST(temp_init/dlc::TEMP0)
 #define Y4    RCONST(qc_init)
 const realtype  W = iW/dlc::W0;                  // dimensionless w velocity for f(t,y,ydot,w,...)
+const realtype Vol = iVol/dlc::VOL0;
 
 #define ZERO  RCONST(0.0)
 #define RTOL  RCONST(rtol)                       // scalar relative tolerance
@@ -119,7 +120,7 @@ int main(){
   initialise_Superdrop_instances(INITDROPSCSV, ptr, nsupers);
   
   /* set values of pointers given in user_data to f() ODE function */
-  InitUserData(data, W, doCond, nsupers, ptr);
+  InitUserData(data, W, doCond, nsupers, Vol, ptr);
 
   /* Get nhalf, scale_p and pvec (index list) given nsupers */
   int nhalf = floor(nsupers/2);

@@ -89,7 +89,7 @@ class Superdrop : public Common2AllSuperdrops
 
 
     public:
-        double eps;               // multiplicity of droplet
+        double eps;            // multiplicity of droplet
         double r;              // radius of droplet
         double m_sol;          // mass of solute dissovled
         double b;              // kohler b factor
