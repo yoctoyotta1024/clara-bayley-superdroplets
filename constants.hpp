@@ -52,7 +52,6 @@ const double CP0        = DC::CP_DRY;                  // Heat capacity [J/Kg/K]
 const double MR0        = DC::MR_DRY;                  // molecular molar mass [Kg/mol]
 const double R0         = 1e-6;                        // droplet radius lengthscale [m]
 const double VOL0       = 1e6;                         // droplet multiplicity [m^-3]
-//const double EPS0       = 1;                         // droplet multiplicity [m^-3]
 const double F0         = TIME0/(RHO0*R0*R0);          // droplet diffusion factors [] 
 
 

@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import csv
 
-from convert_cpp2python import read_cpp_into_floats
+from common_pyfuncs import read_cpp_into_floats, logr_distribution, linear_twinax
 
 plt.rcParams.update({'font.size': 14})
 
@@ -14,11 +14,10 @@ INITDROPSCSV = "dimlessSDinit.csv"
 ### settings for creating distribution from lognormal in R space distribution
 use_lognormal    = True
 if use_lognormal:
-  parcel_vol       = 1
   rspan            = [1e-8, 1e-5]                  # initial range of droplet radii [m]
-  #mus             = [0.075e-6]                     # [m] geometric mean droplet radius
-  #sigs            = [1.5]                    
-  #n_as            = [1e9]                          # [m^-3] total no. concentration of droplets          
+  # mus             = [0.075e-6]                     # [m] geometric mean droplet radius
+  # sigs            = [1.5]                    
+  # n_as            = [1e9]                          # [m^-3] total no. concentration of droplets          
   mus              = [0.02e-6, 0.2e-6, 3.5e-6]               
   sigs             = [1.55, 2.3, 2]                    
   n_as             = [1e6, 0.3e6, 0.025e6]   
@@ -29,7 +28,6 @@ use_volexponential = False
 if use_volexponential:
   r_a             = 30.531e-6                   # [m] radius of peak to volume dist
   n_a             = 2**(23)                     # [m^-3] total no. concentration of real droplets          
-  parcel_vol      = 1e6                          # [m^3] parcel volume for setting multiplicity
 
 
 if use_volexponential == use_lognormal:
@@ -52,10 +50,11 @@ P0         = CONSTS["P0"]                          # pressure [Pa]
 TEMP0      = CONSTS["TEMP0"]                       # temperature [K]
 RHO0       = P0/(RGAS_DRY*TEMP0)                   # density [Kg/m^3]
 R0         = CONSTS["R0"]                          # droplet radius lengthscale [m]
-EPS0         = CONSTS["EPS0"]                          # droplet multiplicity [m^-3]
+VOL0         = CONSTS["VOL0"]                          # droplet multiplicity [m^-3]
 #Rho_sol    =  CONSTS["RHO_SOL"]/RHO0               # dimensionless solute density []
 Rho_sol    =  CONSTS["RHO_L"]/RHO0               # dimensionless solute density []
 nsupers    = int(INITS["nsupers"])                 # no. of distinct superdrops (different initial radii (evenly spaced between ln(rspan))
+parcel_vol = INITS["iVol"]                         #parcel volume [m]
 
 print("---- Additional Constants Derived -----")
 print("RGAS_DRY", "=", RGAS_DRY)
@@ -85,8 +84,8 @@ def dimless_lnr_dist(rspan, nbins, n_a, mu, sig):
   ### make radii and no. concentrations dimensionless
   lnr = lnr - np.log(R0)                                           
   edgs = edgs - np.log(R0)
-  wdths = edgs[1:]- edgs[:-1]                                      # lnr bin widths
-  eps = np.asarray([int(n) for n in lnnorm*wdths])/EPS0     # dimless multiplicities from lognorm dist
+  wdths = edgs[1:]- edgs[:-1]                                     # lnr bin widths
+  eps = np.asarray([int(n) for n in lnnorm*wdths*parcel_vol])     # dimless multiplicities from lognorm dist
   
 
   return np.e**(lnr), eps, wdths, edgs
@@ -124,71 +123,9 @@ def dimless_randomexpo_dist(nsupers, parcel_vol, n_a, r_a, rho=1):
   vols = np.random.exponential(vol_a, nsupers)
   r = (4*vols/(3*np.pi*rho))**(1/3)
  
-  return r/R0, eps/EPS0
+  return r/R0, eps
 #############################################
 
-
-#############################################
-###     functions for plotting droplet    ###
-###          radii distribution           ###
-
-
-
-def logr_distribution(rspan, nbins, data, wghts, 
-  ax=False, xlab=True, ylab=None, step=False, lab=None, 
-  c='k', perlnR=False, smooth=False):
-  ''' plot data distribution against logr (using np.histogram to
-  get frequency of a particular value of data that falls in 
-  each lnr -> lnr + dlnr  bin). Apply guassian kernel smoothing if wanted '''
-
-  # create lnr bins (linearly spaced in lnr)
-  hedgs = np.linspace(np.log(rspan[0]), np.log(rspan[1]), nbins+1)             # edges to lnr bins
-  hwdths = hedgs[1:]- hedgs[:-1]                               # lnr bin widths
-  hcens = (hedgs[1:]+hedgs[:-1])/2                             # lnr bin centres
-
-  # get number frequency in each bin
-  hist, hedgs = np.histogram(np.log(data), bins=hedgs, 
-                  weights=wghts, density=None)
-  if perlnR == True: # get frequency / bin width
-      hist = hist/hwdths
-
-  if ax:
-      if step:
-          ax.step(hcens, hist, label=lab, where='mid', color=c)
-      else:
-          ax.bar(hcens, hist, hwdths, label=lab, color=c)
-
-      ax.legend()
-      ax.set_ylabel(ylab)
-      if xlab:
-          ax.set_xlabel('ln(r /\u03BCm)')
-          ax.xaxis.tick_top() 
-          ax.xaxis.set_label_position('top')
-      else:
-          ax.set_xticks([])
-
-  return hist, hedgs
-
-
-
-
-def linear_twinax(ax, lnr, eps):
-    ''' linear x axis for lognormal 
-    radius distribution plots'''
-     
-    axb = ax.twiny()
-   
-    axb.plot(np.e**lnr*1e6, eps, alpha=0)
-    axb.set_xscale('log')
-    axb.set_xlabel('radius, r /\u03BCm)')
-
-    axb.xaxis.tick_bottom() 
-    axb.xaxis.set_label_position('bottom') 
-
-    return axb
-
-#############################################
- 
 
 
 
@@ -228,7 +165,7 @@ print("Writing inital droplet distribution to: ./init_superdroplets.csv")
 with open('./'+INITDROPSCSV, 'w', encoding='UTF8') as f:
   writer = csv.writer(f)
   writer.writerow(["/* Initial Dimensionless Superdroplets Data"])
-  writer.writerow([" EPS0 = "+str(EPS0)+"[m^-3]", "  R0 = "+str(R0)+"[m]", 
+  writer.writerow([" VOL0 = "+str(VOL0)+"[m^3]", "  R0 = "+str(R0)+"[m]", 
                                 "  RHO_SOL = "+str(Rho_sol)+"[Kg m^-3]"])
   space = "           "                              
   writer.writerow(["eps", space+"r", space+"m_sol */"])
@@ -252,13 +189,11 @@ fig, ax = plt.subplots(figsize=(9,6))
 
 if use_lognormal:
   nbins = nsupers
-  wghts = eps*EPS0
 elif use_volexponential:
   nbins = 50
   rspan = [np.amin(r0*R0), np.amax(r0*R0)]
   #wghts = [1]*nsupers
-  wghts = eps*EPS0/parcel_vol
-
+wghts = eps/parcel_vol
 linear_twinax(ax, np.log(r0*R0), wghts)
 hist, hedgs = logr_distribution(rspan, nbins, r0*R0, wghts, ax=ax, 
   ylab="No. Conc. Real Droplets /m$^{-3}$", lab="initial superdroplets", 
@@ -269,12 +204,13 @@ if use_lognormal:
   for d in range(len(mus)):
       pltr, plteps, pltwdths = dimless_lnr_dist(rspan,                     
                       nsupers*10, n_as[d], mus[d], sigs[d])[0:3]
-      ax.plot(np.log(pltr)+np.log(R0), EPS0*plteps*10, 
+      ax.plot(np.log(pltr)+np.log(R0), plteps*10/parcel_vol, 
                       color='C'+str(d+1), label='lognormal '+str(d)) 
 
 ax.legend()
 plt.tight_layout()
-print("Total No. Conc. real droplets = ", np.sum(hist), "m^-3")
+print("Total No. real droplets = ", np.sum(eps), "m^-3")
+print("--> Conc. real droplets = ", np.sum(hist), "m^-3")
 print("No. superdroplets = ", nsupers)
 print("Average multiplicity = ", np.sum(hist)*parcel_vol/nsupers)
 plt.savefig("initial_superdroplet_dist.png", dpi=400, bbox_inches="tight")
@@ -291,12 +227,12 @@ if use_volexponential:
   nbins = 50
   rspan = [np.amin(r0*R0), np.amax(r0*R0)]
   mass = 4/3*np.pi*(r0*R0)**3 * Rho_sol*RHO0
-  wghts = EPS0*eps*mass/parcel_vol
+  wghts = eps*mass/parcel_vol
 
-  linear_twinax(ax, np.log(r0*R0), wghts)
   hist, hedgs = logr_distribution(rspan, nbins, r0*R0, wghts, ax=ax, 
     ylab="g(lnR) /Kg m$^{-3}$ / unit lnR", lab="initial superdroplets", 
     c='C0', perlnR=True, smooth=False)
+  linear_twinax(ax, np.log(r0*R0), wghts)
         
   ax.legend()
   plt.tight_layout()
