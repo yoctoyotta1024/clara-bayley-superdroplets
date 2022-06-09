@@ -11,6 +11,9 @@ using namespace std;
 
 #define SDloop(i,nsupers) for(int i=0; i<nsupers; i++)  //for loop over all superdroplets
 
+  
+const double prob_jk_const = 1.5e3*(pow(dlc::R0, 3.0))*coll_tstep/iVOL;
+
 
 
 
@@ -52,7 +55,7 @@ int collide_droplets(int nsupers, int nhalf, int scale_p,
 
     /* 2. Determine probability of coalescence */
     //prob_jk = dis(gen);
-    prob_jk = 1.5*(p1->m() + p2->m())*dlc::RHO0*(pow(dlc::R0, 3.0))/1e6;
+    prob_jk = prob_jk_const*(p1->vol() + p2->vol());
     prob = scale_p*max(p1->eps, p2->eps)*prob_jk;     // scaled probability of pair coalescence (p_alpha)
 
     /* 3. Monte Carlo Step: randomly determine gamma of coalescence */

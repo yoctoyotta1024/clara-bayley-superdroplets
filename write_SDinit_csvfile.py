@@ -49,10 +49,10 @@ P0         = CONSTS["P0"]                          # pressure [Pa]
 TEMP0      = CONSTS["TEMP0"]                       # temperature [K]
 RHO0       = P0/(RGAS_DRY*TEMP0)                   # density [Kg/m^3]
 R0         = CONSTS["R0"]                          # droplet radius lengthscale [m]
-VOL0         = CONSTS["VOL0"]                      # droplet multiplicity [m^-3]
+#VOL0         = CONSTS["VOL0"]                      # droplet multiplicity [m^-3]
 Rho_sol    =  CONSTS["RHO_SOL"]/RHO0               # dimensionless solute density []
 nsupers    = int(INITS["nsupers"])                 # no. of distinct superdrops (different initial radii (evenly spaced between ln(rspan))
-VOL = INITS["iVol"]                         #parcel volume [m]
+VOL = INITS["iVOL"]                         #parcel volume [m]
 
 print("---- Additional Constants Derived -----")
 print("RGAS_DRY", "=", RGAS_DRY)
@@ -166,7 +166,7 @@ print("Writing inital droplet distribution to: ./init_superdroplets.csv")
 with open('./'+INITDROPSCSV, 'w', encoding='UTF8') as f:
   writer = csv.writer(f)
   writer.writerow(["/* Initial Dimensionless Superdroplets Data"])
-  writer.writerow([" VOL0 = "+str(VOL0)+"[m^3]", "  R0 = "+str(R0)+"[m]", 
+  writer.writerow([" VOL = "+str(VOL)+"[m^3]", "  R0 = "+str(R0)+"[m]", 
                                 "  RHO_SOL = "+str(Rho_sol)+"[Kg m^-3]"])
   space = "           "                              
   writer.writerow(["eps", space+"r", space+"m_sol */"])

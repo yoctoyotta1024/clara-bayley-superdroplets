@@ -9,7 +9,7 @@ namespace dlc = dimless_constants;
 for ODE solver */
 
 /* initial parcel conditions */
-double iVol        = 1e6;                          // parcel volume [m^3]
+double iVOL        = 1e6;                          // parcel volume [m^3]
 double iW          = 0.5;                        // vertical parcel speed [m/s] (dP/dt ~ w*dP/dz)
 double temp_init   = 273.15;                     // initial parcel temperature [T]
 double p_init      = 100000;                     // initial pressure [Pa]

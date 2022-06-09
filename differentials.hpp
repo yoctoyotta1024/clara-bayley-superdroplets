@@ -39,7 +39,7 @@ const realtype gamma = DC::G/(DC::RGAS_DRY*0.0062)-1;
 
 // /* ---- constants for use in diffusion growth ----- */
 //const realtype dm_dt_const = 4*M_PI*dlc::Rho_l*dlc::EPS0*pow(dlc::R0, 3.0);
-const realtype dm_dt_const = 4*M_PI*dlc::Rho_l*pow(dlc::R0, 3.0)/iVol;
+const realtype dm_dt_const = 4*M_PI*dlc::Rho_l*pow(dlc::R0, 3.0)/iVOL;
 // /* ----------------------------------------------- */
 
 
@@ -52,18 +52,16 @@ typedef struct {
   realtype w;
   bool doCond;
   int nsupers;
-  realtype Vol;
   Superdrop* ptr;
 } *UserData;
 
 
 static void InitUserData(UserData data, realtype w,
- bool doCond, int nsupers, realtype Vol, Superdrop* ptr)
+ bool doCond, int nsupers, Superdrop* ptr)
 {
   data->w = w;
   data->doCond= doCond;
   data->nsupers = nsupers;
-  data->Vol = Vol;
   data->ptr = ptr;
 }
 
@@ -209,7 +207,7 @@ static realtype dtemp_dt_adia(N_Vector ydot, realtype p,
 
 static int condensation_droplet_growth(N_Vector ydot, realtype* p, 
     realtype* temp, realtype* qv, realtype*  qc, Superdrop* ptr, realtype t,
-    int nsupers, realtype Vol)
+    int nsupers)
 {
   realtype dr, psat, s_ratio, r, eps, a, b, fkl, fdl;
   realtype tot_drhov, dqc, dqv, dtemp_c;
@@ -233,7 +231,7 @@ static int condensation_droplet_growth(N_Vector ydot, realtype* p,
     //dr = (s_ratio-1) / (dlc::Rho_l * (fkl+fdl) * r);
     
     /*  if droplets are dry, do not shrink further */
-    if (r<= (ptr+i) -> getDry_r() && dr<=0.0){
+    if (r<= (ptr+i) -> dry_r() && dr<=0.0){
       Ith(ydot, 5+i) = 0.0;
     }
     else{
@@ -268,12 +266,10 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void* user_data)
   realtype p, temp, qv, qc, w;
   bool doCond;
   int nsupers;
-  realtype Vol;
   Superdrop* ptr;
   w = data -> w;
   doCond = data -> doCond;
   nsupers = data -> nsupers;
-  Vol = data -> Vol;
   ptr = data -> ptr;
   
   p = Ith(y,1); 
@@ -291,7 +287,7 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void* user_data)
   }
 
   if(doCond){
-    condensation_droplet_growth(ydot, &p, &temp, &qv, &qc, ptr, t, nsupers, Vol);
+    condensation_droplet_growth(ydot, &p, &temp, &qv, &qc, ptr, t, nsupers);
   }
 
 

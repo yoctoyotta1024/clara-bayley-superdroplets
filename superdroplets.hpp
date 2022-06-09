@@ -34,14 +34,21 @@ class Common2AllSuperdrops
 
     public:
         
+
     Common2AllSuperdrops() {}
-    
-    Common2AllSuperdrops(double rho_l, double rho_sol, double mr_sol, double ionic)
-    // constructor function called everytime instance of class is created
+    /* constructor function called everytime 
+        empty instance of class is created */
+
+
+    Common2AllSuperdrops(double rho_l, double rho_sol, 
+                    double mr_sol, double ionic)
+    /* constructor function called everytime 
+        instance of class is created */
     {
         setPrivates(rho_l, rho_sol, mr_sol, ionic);
 
     };
+
 
     void setPrivates(double aRho_l, double aRho_sol, double aMr_sol, double aIonic)
     // Combined Setter functions to set private attributes
@@ -81,102 +88,102 @@ class Superdrop : public Common2AllSuperdrops
       from Common2AllSuperdrops */
 {
     private:
-        double dry_r;          // dry radius of droplet
-        double addsol;         // contribution to density due to solute = addsol/r^3
+        double eps0;           // initial droplet multiplicity
         double r0;             // initial droplet radius
-        double m0;             // initial droplet mass
-        double m_w0;           // initial dropelt water content
-
+        double m_sol0;         // initial droplet solute mass
 
     public:
         double eps;            // multiplicity of droplet
         double r;              // radius of droplet
         double m_sol;          // mass of solute dissovled
         double b;              // kohler b factor
-        
+
+
     Superdrop() {}
+     /* empty constructor function */
+
 
     Superdrop(double aRho_l, double aRho_sol, 
                 double aMr_sol, double aIonic) : Common2AllSuperdrops(aRho_l, aRho_sol, 
                             aMr_sol, aIonic){}
-
+     /* constructor function with parent initialised */
  
+
     Superdrop(double aEps, double aR, double aM_sol, double aRho_l, double aRho_sol, 
                 double aMr_sol, double aIonic) : Common2AllSuperdrops(aRho_l, aRho_sol, 
                             aMr_sol, aIonic)
+     /* constructor function with parent and instance initialised */
     {
-
        eps = aEps;       
        r = aR;
        m_sol = aM_sol; 
-
-       setSuperdropPrivates(aR);
-
+       setSuperdropInitials(aEps, aR, aM_sol);
     }
 
 
 
-   void setSuperdropPrivates(double aR)
+   void setSuperdropInitials(double aEps, double aR, double aM_sol)
     // Combined Setter functions to set private attributes
     {
-       dry_r = pow(3*m_sol/(4*M_PI*getRho_sol()), 1.0/3);
-       addsol = (getRho_sol() - getRho_l())*pow(dry_r, 3.0);
+       eps0 = aEps;
        r0 = aR;
-       m_w0 = 4.0/3 * M_PI * getRho_l() * pow((r0 - dry_r), 3.0);
-       m0 = m_sol + m_w0;
-    }
-    
-    double getAddsol(){
-        return addsol;
+       m_sol0 = aM_sol;
+
     }
 
-    double getDry_r(){  
-        return dry_r;
-    }
-    
     double getR0(){
         return r0;
     }
-   
-    double getM_w0(){
-        return m_w0;
-    }
-
-    double getM0(){
-        return m0;
-    }
+    // double getEps0(){
+    //     return eps0;
+    // }
+    // double getM_sol0(){
+    //     return m_sol0;
+    // }
 
 
+    double dry_r(){  
+        /* calculate radius of dry droplet, ie.
+        radius if it was entirely made of solute */
 
-    double rhoeff(){
-    /* calculates effective density of droplet
-    so mass_droplet = m = 4/3*pi*r^3 * rhoeff */
-    
-        double rhoeff;
-        rhoeff = getRho_l() + addsol/pow(r,3.0);
-
-        return rhoeff;
+        return pow(3*m_sol/(4*M_PI*getRho_sol()), 1.0/3);
     }
     
 
     double m(){
-    // total mass of droplet (water + dry areosol) 
-        return 4.0/3 * M_PI * rhoeff() * pow(r,3.0);
+        /* calculate total mass of droplet 
+            m = (water + dry areosol)  */
+        
+        double m;
+        m = m_sol*(1.0 - getRho_l()/getRho_sol());         //mass contribution of solute
+        m = 4.0/3 * M_PI * getRho_l() * pow(r,3.0) + m;
+        return m;
     }
 
+    // double rhoeff(){
+    // /* calculates effective density of droplet
+    // so mass_droplet = m = 4/3*pi*r^3 * rhoeff */
+    
+    //     double effsol; //effect of solute on density
+    //     effsol = 1.0 - getRho_l()/getRho_sol();
+    //     effsol = 3*m_sol/(4.0*M_PI*pow(r, 3.0))*effsol;
 
-    double m_w(){
-    // mass of only water in droplet
-        double v_w;
-        v_w = 4.0/3 * M_PI *  (pow(r,3.0) - pow(dry_r, 3.0));
-        return getRho_l() * v_w;
-    }
+    //     return getRho_l() + effsol;
+    // }
+    
+    // double m_w(){
+    // // mass of only water in droplet
+    //     double v_w;
+    //     v_w = 4.0/3 * M_PI *  (pow(r,3.0) - pow(dry_r, 3.0));
+    //     return getRho_l() * v_w;
+    // }
     
     double vol(){
-    // volume of droplet
+    /* volume of droplet */
         return 4.0/3 * M_PI * pow(r,3.0);
     } 
-    
+
+
 
     double akohler_factor(double temp)
     /* calculate a in raoult factor (exp^(a/r)) to
@@ -196,7 +203,6 @@ class Superdrop : public Common2AllSuperdrops
     {
         return KOH_B*m_sol*getIonic()/getMr_sol();
     }
-
 
 
 };
@@ -262,7 +268,7 @@ Superdrop* initialise_Superdrop_instances(string FNAME, Superdrop* ptr, int nsup
         (ptr+n) -> eps = arr[0];
         (ptr+n) -> r = arr[1];
         (ptr+n) -> m_sol = arr[2];
-        (ptr+n) -> setSuperdropPrivates(arr[1]);
+        (ptr+n) -> setSuperdropInitials(arr[0], arr[1], arr[2]);
         cout <<"      eps = "<< (ptr+n) -> eps;
         cout << ", r = " << (ptr+n) -> r;
         cout << ", m_sol = " << (ptr+n) -> m_sol << endl;   
