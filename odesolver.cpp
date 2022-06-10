@@ -67,7 +67,7 @@ int main(){
   /* Project name and savefile names*/
   std::string PROJNAME, SAVENAME, STATSNAME;
   PROJNAME = "Simple Rising Parcel (with Drop Condensation tbc)";          // project title sometimes used
-  SAVENAME = "sundials2";                                                  // solution written to SAVENAME_sol.csv file
+  SAVENAME = "./bin/sundials2";                                                  // solution written to SAVENAME_sol.csv file
   STATSNAME = SAVENAME+"_stats.csv";                                       // integration statistics written to this .csv
 
   string INITDROPSCSV;

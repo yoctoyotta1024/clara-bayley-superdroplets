@@ -17,7 +17,9 @@ OBJECTS = ${CPPSOURCES:=.o}
 OBJECTS_DEPENDENCIES = ${CPPSOURCES_DEPENDENCIES:=.o}
 DEPS = ${CPPSOURCES:=.d}
 
+#SRCDIR = src
 OBJDIR = obj
+BINDIR = bin
 DEPDIR = dep
 
 
@@ -50,6 +52,7 @@ ${DEPDIR}/%.d: %.cpp
 all: targets 
 
 targets: ${OBJDIR}/${OBJECTS} ${DEPDIR}/${DEPS}
+	@mkdir -p ${BINDIR}
 	@for i in ${CPPSOURCES} ; do \
 	  echo "${CPP} -o $${i} ${OBJDIR}/$${i}.o ${OBJECTS_DEPENDENCIES} ${CPPFLAGS} ${CFLAGS} ${LDFLAGS} ${INCLUDES} -L${libdir} ${LIBRARIES} ${LINKFLAGS}" ; \
 	  ${CPP} -o $${i} ${OBJDIR}/$${i}.o ${OBJECTS_DEPENDENCIES} ${CPPFLAGS} ${CFLAGS} ${LDFLAGS} ${INCLUDES} -L${libdir} ${LIBRARIES} ${LINKFLAGS} ; \
@@ -84,10 +87,9 @@ cleanALL:
 	rm -rf ${OBJDIR}
 	rm -rf ${DEPDIR}
 	rm -f ${CPPSOURCES}
-	rm -f sundials2_sol.csv
-	rm -f sundials2_SDsol.csv
-	rm -f sundials2_err.csv
-	rm -f sundials2_stats.csv
-	rm -f sundials2_setup.txt
-
+	rm -f ${BINDIR}/sundials2_sol.csv
+	rm -f ${BINDIR}/sundials2_SDsol.csv
+	rm -f ${BINDIR}/sundials2_err.csv
+	rm -f ${BINDIR}/sundials2_stats.csv
+	rm -f ${BINDIR}/sundials2_setup.txt
 # --------------------------------------------------------------------------------------- #
