@@ -39,6 +39,17 @@ int collide_droplets(int nsupers, int nhalf, int scale_p,
   droplet pointers in order to generate random pairs */
   shuffle(pvec.begin(), pvec.end(), seed);   
 
+  // double mass = 0;
+  // double mass_sol = 0;
+  // cout << "before collisions " << endl;
+  // SDloop(i,nsupers){
+  //   mass += pow(((ptr+i) -> r), 3.0)*((ptr+i) -> eps);
+  //   mass_sol += ((ptr+i) -> m_sol)*((ptr+i) -> eps);
+  // }
+  // cout << "tot mass "<< mass << endl;
+  // cout << "tot solute "<< mass << endl;
+
+
   /*  --- This loop collides each pair of superdroplet ---  */
   for(int i=0; i<nhalf; i++){
    
@@ -76,9 +87,18 @@ int collide_droplets(int nsupers, int nhalf, int scale_p,
       
       /* 3.(option b) if eps1 = gamma*eps2 collide to 
       make twin SDs with same eps, r and mass */
+      
       if (p1 -> eps == gamma*(p2 -> eps)){         
-
-        // cout << p1 << " same as " << p2 << endl;
+        // cout << "----------- start of collision --------------- " << endl;
+        // cout << "before" << endl;
+        // cout <<p1 -> eps << " eps same as " << p2 -> eps << endl;
+        // cout << p1 -> r << " radii collides with " << p2 -> r << endl;
+        // cout << p1 -> m_sol << " m_sols are " << p2 -> m_sol << endl;
+        // cout << p1 -> dry_r() << " dry_r are " << p2 -> dry_r() << endl;
+        // cout << (p1 -> dry_r()) - (p1 -> r)  << " dry_r diff " << (p1 -> dry_r()) - (p1 -> r) << endl;
+        // cout << "sum(eps*m_sol) "<< (p1 -> m_sol)*(p1->eps) + (p2 -> m_sol)*(p2->eps) << endl;
+        // cout << "sum(eps*r**3) "<< pow((p1 -> r), 3.0)*(p1->eps) + pow((p2 -> r), 3.0)*(p2->eps) << endl;
+        
         delta_eps = (p2 -> eps)/2; 
         delta_r = pow((p2 -> r), 3.0) + gamma*(pow((p1 -> r), 3.0));
         delta_r = pow(delta_r, 1.0/3);
@@ -86,12 +106,22 @@ int collide_droplets(int nsupers, int nhalf, int scale_p,
         
         p1 -> eps = delta_eps;
         p2 -> eps = (p2 -> eps) - delta_eps;
-
+  
         p1 -> r = delta_r;
         p2 -> r = delta_r; 
-        
+  
         p1 -> m_sol = delta_m_sol;
         p2 -> m_sol = delta_m_sol; 
+
+        // cout << "after" << endl; 
+        // cout << p1 -> eps << " same as " << p2 -> eps << endl;
+        // cout << p1 -> r << " radii became " << p2 -> r << endl;
+        // cout << p1 -> m_sol << " m_sols became " << p2 -> m_sol << endl;
+        // cout << p1 -> dry_r() << " dry_r " << p2 -> dry_r() << endl;
+        // cout << (p1 -> dry_r()) - (p1 -> r)  << " dry_r diff " << (p1 -> dry_r()) - (p1 -> r) << endl;
+        // cout << "sum(eps*m_sol) "<< (p1 -> m_sol)*(p1->eps) + (p2 -> m_sol)*(p2->eps) << endl;
+        // cout << "sum(eps*r**3) "<< pow((p1 -> r), 3.0)*(p1->eps) + pow((p2 -> r), 3.0)*(p2->eps) << endl;
+        // cout << "----------- end of collision --------------- " << endl;
       }
 
       /* 3.(option a) if eps1 > gamma*eps2 collide to grow 
@@ -124,9 +154,18 @@ int collide_droplets(int nsupers, int nhalf, int scale_p,
   } // end collisions of all SD pairs
   
 
-
+  // cout << "after collisions " << endl;
+  // mass = 0;
+  // mass_sol = 0;
+  // SDloop(i,nsupers){
+  //   mass += pow(((ptr+i) -> r), 3.0)*((ptr+i) -> eps);
+  //   mass_sol += ((ptr+i) -> m_sol)*((ptr+i) -> eps);
+  // }
+  // cout << "tot mass "<< mass << endl;
+  // cout << "tot solute "<< mass << endl;
+  // cout <<" ????????????" << endl;
+  
   return 0;
-
 }
 
 

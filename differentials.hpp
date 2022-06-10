@@ -276,10 +276,10 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void* user_data)
   temp = Ith(y,2);
   qv = Ith(y,3);
   qc = Ith(y,4);
-  SDloop(i, nsupers)
-  {
-    (ptr+i) -> r = Ith(y,5+i);
-  }
+  // SDloop(i, nsupers)
+  // {
+  //   (ptr+i) -> r = Ith(y,5+i);
+  // }
   
   if(doExpand){
     dp_dt(t, ydot, w);     
