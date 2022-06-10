@@ -2,6 +2,7 @@
 #define CVODEHELPERS
 
 #include <iostream>
+#include <fstream>
 using namespace std;
 
 /*
@@ -14,6 +15,7 @@ static int PrintINITData(string PROJNAME, int NEQ, N_Vector y, realtype rtol,
           N_Vector abstol, int NOUT, realtype T0, realtype T1, realtype TSTEP);
 static void PrintOutput(realtype t, N_Vector y);
 //static void PrintRootInfo(int root_f1, int root_f2);
+static int WriteSetup2Txt(string* readfiles, int nfiles, FILE* IFID);
 static int HeaderWriteOutput(FILE* YFID, FILE* SDFID);
 static int WriteOutput(realtype t, N_Vector y, int nsupers, 
               Superdrop* ptr, FILE* YFID, FILE* SDFID, FILE* EFID);
@@ -86,6 +88,43 @@ y4 = Ith(y,4);
 
 //   return;
 // }
+
+
+
+static int WriteSetup2Txt(string* readfiles, int nfiles, FILE* IFID)
+{
+
+  ifstream initfile;
+  ofstream writefile;
+  string header, line;
+  string breakheader = "// ----------------------------- //\n";
+
+  /* check file to write to pointers */
+  if (IFID == NULL) return(1);
+
+  for(int i=0; i<nfiles; i++){
+
+    initfile.open(*(readfiles+i));
+    cout << i << " writing " << *(readfiles+i) << " to XXX_setup.txt"<<endl;
+
+    fprintf(IFID, "%s", breakheader.c_str()); 
+    header = "// --------- "+readfiles[i]+" --------- //\n";
+    fprintf(IFID, "%s", header.c_str());
+    fprintf(IFID, "%s", breakheader.c_str()); 
+
+    while(getline(initfile, line)){   // read file line by line
+    
+      /* output lines to .txt file on disk */
+      fprintf(IFID, "%s", (line+"\n").c_str());
+    }
+
+    fprintf(IFID, "%s", (breakheader+"\n\n\n").c_str()); 
+
+    initfile.close();
+  }
+
+  return(0);
+}
 
 
 

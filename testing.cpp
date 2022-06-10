@@ -22,51 +22,23 @@ using namespace std;
 #define SDloop(i,nsupers) for(int i=0; i<nsupers; i++)  //for loop over all superdroplets
 
 
+static int WriteSetup2Txt(string INITHPP, string CONSTSHPP, FILE* IFID);
 
 
 int main(){
 
-  int nhalf = floor(nsupers/2);
-  int scale_p = nsupers*(nsupers-1)/(2*nhalf);
+  string SAVENAME = "sundials2";                                                  // solution written to SAVENAME_sol.csv file
 
-  int retval2;
-  string INITDROPSCSV;
-  INITDROPSCSV = "dimlessSDinit.csv";                                       // file to read for SD eps, r and m_sol initialisation 
+  FILE *IFID = NULL;           // solution output file 
+  IFID = fopen((SAVENAME+"_setup.txt").c_str(),"w");
 
-  /* Initialise Superdroplets using INITDROPSCSV .csv file */
-  Superdrop drops_arr[nsupers];
-  SDloop(i, nsupers) 
-  {
-    drops_arr[i] = Superdrop(iRho_l, iRho_sol, iMr_sol, iIONIC); 
-  }
-  Superdrop* ptr; 
-  ptr = &drops_arr[0];
-  initialise_Superdrop_instances(INITDROPSCSV, ptr, nsupers);
+  string INITHPP, CONSTSHPP;
+  INITHPP = "init.hpp";                                       // file to read for SD eps, r and m_sol initialisation 
+  CONSTSHPP = "constants.hpp";                                       // file to read for SD eps, r and m_sol initialisation 
   
+  WriteSetup2Txt(INITHPP, CONSTSHPP, IFID); 
 
-  vector<int> numvec(nsupers);
-  SDloop(i, nsupers){
-    numvec[i] = i;
-    cout << i << ": " << ptr + i << endl;
-  }
-  cout << "initial adresses" << endl;
 
-  SDloop(i, nsupers){
-    numvec[i] = i;
-    cout << ptr + i  <<" initial eps: " << (ptr + i) -> eps;
-    cout << ", initial r: " << (ptr + i) -> r;
-    cout << ", initial m_sol: " << (ptr + i) -> m_sol << endl;
-  } 
-  cout << "---" << endl;
-  retval2 = collide_droplets(nsupers, nhalf, scale_p, ptr, numvec);
-  cout << "---" << endl;
-
-  SDloop(i, nsupers){
-    numvec[i] = i;
-    cout << ptr + i  << " eps: " << (ptr + i) -> eps;
-    cout << ", r: " << (ptr + i) -> r;
-    cout << ", m_sol: " << (ptr + i) -> m_sol << endl;
-  } 
 
   return 0;
 }
@@ -78,3 +50,44 @@ int main(){
 
 
 
+  static int WriteSetup2Txt(string INITHPP, string CONSTSHPP, FILE* IFID)
+{
+
+  ifstream initfile;
+  ofstream writefile;
+  string header, line;
+  string breakheader = "// ----------------------------- //\n";
+
+  /* check file to write to pointers */
+  if (IFID == NULL) return(1);
+
+  /* read .hpp init file */ 
+  string readfiles[] = {INITHPP, CONSTSHPP};
+
+  for(int i=0; i<2; i++){
+    
+    initfile.open(readfiles[i]);
+    cout << i << " writing " << readfiles[i]<< " to XXX_setup.txt"<<endl;
+
+    fprintf(IFID, "%s", breakheader.c_str()); 
+    header = "// --------- "+readfiles[i]+" --------- //\n";
+    fprintf(IFID, "%s", header.c_str());
+    fprintf(IFID, "%s", breakheader.c_str()); 
+
+    while(getline(initfile, line)){   // read file line by line
+    
+      /* output lines to .txt file on disk */
+      fprintf(IFID, "%s", (line+"\n").c_str());
+    }
+
+    fprintf(IFID, "%s", (breakheader+"\n\n\n").c_str()); 
+
+    initfile.close();
+  }
+
+
+
+
+
+  return(0);
+}

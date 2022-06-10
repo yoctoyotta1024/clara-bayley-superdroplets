@@ -91,6 +91,7 @@ int main(){
 
   // Output files to write to
   FILE* STSFID;                // integration stats output file 
+  FILE *IFID = NULL;           // setup (init.hpp and consts.hpp) written to this file 
   FILE *YFID = NULL;           // solution output file 
   FILE *SDFID = NULL;          // solution output file 
   //FILE *EFID = NULL;         // error output file   
@@ -218,15 +219,22 @@ int main(){
                   RTOL, abstol, NOUT, T0, TSTEP, TSTEP);
   if(check_retval(&retval, "PrintINITData", 1)) return(1);
 
+  /* Write Setup (init.hpp and constants.hpp) to IFID file */ 
+  string setupfiles[] = {"init.hpp", "constants.hpp"}; 
+  IFID = fopen((SAVENAME+"_setup.txt").c_str(),"w");
+  WriteSetup2Txt(&setupfiles[0], 2, IFID);
+  fclose(IFID);
+
   /* Output initial conditions */
   YFID = fopen((SAVENAME+"_sol.csv").c_str(),"w");
   SDFID = fopen((SAVENAME+"_SDsol.csv").c_str(),"w");
-  //EFID = fopen((SAVENAME+"_err.csv".c_str(),"w");
+  //EFID = fopen((SAVENAME+"_err.csv".c_str(),"w"); 
   HeaderWriteOutput(YFID, SDFID);   
   WriteOutput(T0, y, nsupers, ptr, YFID, SDFID, NULL); 
 
   /* Open Integration Statistics File in preparation for writing */ 
   STSFID = fopen(STATSNAME.c_str(), "w");
+
 
   /* 14. RUN SOLVER
   For NOUT iterations, call CVode, test for error then

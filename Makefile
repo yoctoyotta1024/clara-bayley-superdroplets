@@ -88,5 +88,6 @@ cleanALL:
 	rm -f sundials2_SDsol.csv
 	rm -f sundials2_err.csv
 	rm -f sundials2_stats.csv
+	rm -f sundials2_setup.txt
 
 # --------------------------------------------------------------------------------------- #

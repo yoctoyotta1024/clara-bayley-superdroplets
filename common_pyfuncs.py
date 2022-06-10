@@ -84,7 +84,6 @@ def get_SDdata(SDsol_filename, nsupers, R0, RHO0):
     r = drops[:,nsupers:2*nsupers]
     m_sol = drops[:,2*nsupers:]
 
-
     print("--- Raw SD Data Shapes ---")
     print("variables: eps, r, m_sol")
     print(eps.shape, r.shape, m_sol.shape)
@@ -190,7 +189,7 @@ def gaussian_kernel_smoothing(hist, hcens, sig):
 ######## functions for superdroplet attributes  ########
 
 
-class Common2AllSuperdrops():
+class CommonSuperdropProperties():
   '''Parent class for all superdroplets. Each 
     Superdrop instance has these properties'''
     
