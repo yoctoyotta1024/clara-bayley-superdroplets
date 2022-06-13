@@ -69,7 +69,7 @@ def get_soldata(sol_filename, TIME0, P0, TEMP0):
     print("time:", np.amin(t), np.amax(t))
     print("p:", np.amin(p), np.amax(p))
     print("temp:", np.amin(temp), np.max(temp))
-    print("(qv, qc)", (np.amin(qv), np.amin(qc)), (np.amax(qv), np.amax(qc)))
+    print("(qv, qc)", (np.amin(qv), np.amin(qc)), (np.amax(qv), np.amax(qc)), "\n")
     
     
     return t*TIME0, p*P0, temp*TEMP0, qv, qc      ### (Re-)dimensionalise and return
@@ -91,7 +91,7 @@ def get_SDdata(SDsol_filename, nsupers, R0, RHO0):
     print("--- Non Dimensional Max/Mins of Data ---")
     print("droplet eps:", np.amin(eps), np.amax(eps))
     print("droplet r:", np.amin(r), np.amax(r))
-    print("droplet m_sol:", np.amin(m_sol), np.amax(m_sol))
+    print("droplet m_sol:", np.amin(m_sol), np.amax(m_sol), "\n")
     
 
     return eps, r*R0, m_sol*RHO0*R0**3           ### (Re-)dimensionalise and return

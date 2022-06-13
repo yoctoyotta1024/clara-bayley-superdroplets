@@ -42,7 +42,7 @@ with all CAPITALS constants have dimensions */
 namespace DC = dimmed_constants;
 
 const double W0         = 0.5;                         // characteristic velocity [m/s]
-const double TIME0      = 4000;                        // timescale [s]
+const double TIME0      = 1000;                        // timescale [s]
 const double P0         = 100000;                      // pressure [Pa]
 const double TEMP0      = 273.15;                      // temperature [K]
 const double RHO0       = P0/(DC::RGAS_DRY*TEMP0);     // density [Kg/m^3]

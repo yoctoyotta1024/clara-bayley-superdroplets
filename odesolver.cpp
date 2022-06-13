@@ -249,9 +249,11 @@ int main(){
 
     for(int istep=0; istep<ceil(CollsPerTstep); istep++)                 // have ceil(CollsPerTstep) collisions per output timestep
     {
+      
       /* 14(a) Advance solution in time */
       retval = CVode(cvode_mem, tout, y, &t, CV_NORMAL);
       if (check_retval(&retval, "CVode", 1)) break;
+
 
       // if (retval == CV_ROOT_RETURN) {
       //   retvalr = CVodeGetRootInfo(cvode_mem, rootsfound);
@@ -261,9 +263,21 @@ int main(){
 
       /* 14(b) Simulate Superdroplet Collisions */
       if (doColl){
+
         retval2 = collide_droplets(nsupers, nhalf, scale_p, ptr, pvec);
+        
+        /* update odesolver values for droplet properties following collision event */
+        SDloop(i, nsupers){
+          Ith(y,5+i) = (ptr+i) -> r;
+        }
+        
+        /* Reinitialize the solver */
+        cout << "reinit solver" << endl;
+        retval = CVodeReInit(cvode_mem, t, y);
+        if (check_retval((void *)&retval, "CVodeReInit", 1)) return(1);
+
       }
-      
+          
       /* 14(c) Continute to next timestep */
       if (retval == CV_SUCCESS && retval2 == CV_SUCCESS) {
         tout += TSTEP/CollsPerTstep;
