@@ -22,22 +22,42 @@ using namespace std;
 #define SDloop(i,nsupers) for(int i=0; i<nsupers; i++)  //for loop over all superdroplets
 
 
-static int WriteSetup2Txt(string INITHPP, string CONSTSHPP, FILE* IFID);
+
+
+#define T0    RCONST(tspan[0]/dlc::TIME0)        // initial time (dimensionless)          
+#define TSTEP RCONST(tspan[1]/nout/dlc::TIME0)   // output time step (dimensionless)     
+#define NOUT  nout                               // number of output times
+
+#define COLL_TSTEP RCONST(coll_tstep/dlc::TIME0)                    // No. droplet collisions events
 
 
 int main(){
 
-  string SAVENAME = "sundials2";                                                  // solution written to SAVENAME_sol.csv file
-
-  FILE *IFID = NULL;           // solution output file 
-  IFID = fopen((SAVENAME+"_setup.txt").c_str(),"w");
-
-  string INITHPP, CONSTSHPP;
-  INITHPP = "init.hpp";                                       // file to read for SD eps, r and m_sol initialisation 
-  CONSTSHPP = "constants.hpp";                                       // file to read for SD eps, r and m_sol initialisation 
+  realtype t, tout, CollsPerTstep;
   
-  WriteSetup2Txt(INITHPP, CONSTSHPP, IFID); 
+  double tspan[2]    = {0, 4000};                   // time span of integration [s]
+  int nout           = 20;                         // No. time points to evaluate (save data at)
+  double coll_tstep  = 100;                         // maximum time between each droplet collisions event [s]
 
+  CollsPerTstep = TSTEP/(COLL_TSTEP);
+  tout = T0+COLL_TSTEP;   // first output time = t0 + TSTEP/CollsPerTstep
+
+  cout << T0 << endl;
+  double delt = 0;
+  
+
+  while(delt < COLL_TSTEP){
+      
+    cout << "do integration" << endl;
+
+    delt += COLL_TSTEP;
+      
+    cout << delt << endl;
+  }
+
+    tout += delt;
+  
+  }
 
 
   return 0;
@@ -47,47 +67,3 @@ int main(){
 
 
 
-
-
-
-  static int WriteSetup2Txt(string INITHPP, string CONSTSHPP, FILE* IFID)
-{
-
-  ifstream initfile;
-  ofstream writefile;
-  string header, line;
-  string breakheader = "// ----------------------------- //\n";
-
-  /* check file to write to pointers */
-  if (IFID == NULL) return(1);
-
-  /* read .hpp init file */ 
-  string readfiles[] = {INITHPP, CONSTSHPP};
-
-  for(int i=0; i<2; i++){
-    
-    initfile.open(readfiles[i]);
-    cout << i << " writing " << readfiles[i]<< " to XXX_setup.txt"<<endl;
-
-    fprintf(IFID, "%s", breakheader.c_str()); 
-    header = "// --------- "+readfiles[i]+" --------- //\n";
-    fprintf(IFID, "%s", header.c_str());
-    fprintf(IFID, "%s", breakheader.c_str()); 
-
-    while(getline(initfile, line)){   // read file line by line
-    
-      /* output lines to .txt file on disk */
-      fprintf(IFID, "%s", (line+"\n").c_str());
-    }
-
-    fprintf(IFID, "%s", (breakheader+"\n\n\n").c_str()); 
-
-    initfile.close();
-  }
-
-
-
-
-
-  return(0);
-}

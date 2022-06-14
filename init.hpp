@@ -21,7 +21,7 @@ bool doColl        = true;                       // enable collisions of superdr
 
 /* integration params */
 double tspan[2]    = {0, 4000};                   // time span of integration [s]
-int nout           = 1000;                         // No. time points to evaluate (save data at)
+int nout           = 500;                         // No. time points to evaluate (save data at)
 double rtol        = 1e-6;                       // relative tolerance (tol) for integration
 double atols[2]    = {1e-6, 1e-6};               // absolute tols for [parcel thermodynamics, droplet radii]
 
@@ -29,7 +29,7 @@ double atols[2]    = {1e-6, 1e-6};               // absolute tols for [parcel th
 /* droplet init params. First create superdroplet eps, r0
 and m_sol data using python "create_superdrop_init.py" */
 //int nsupers        = 32768;                           // no. distinct superdrop objects in array
-int nsupers        = 1024;                           // no. distinct superdrop objects in array
+int nsupers        = 8192;                           // no. distinct superdrop objects in array
 double iRho_l      = dlc::Rho_l;
 double iRho_sol    = dlc::Rho_sol;
 double iMr_sol     = dlc::Mr_sol;

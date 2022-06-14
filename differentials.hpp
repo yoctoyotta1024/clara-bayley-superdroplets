@@ -276,10 +276,6 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void* user_data)
   temp = Ith(y,2);
   qv = Ith(y,3);
   qc = Ith(y,4);
-  SDloop(i, nsupers)
-  {
-   (ptr+i) -> r = Ith(y,5+i);           // line imcompatible with collisions unless solver reinitialised after collision events
-  }
   
   
   if(doExpand){
@@ -288,6 +284,9 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void* user_data)
   }
 
   if(doCond){
+    SDloop(i, nsupers){
+    (ptr+i) -> r = Ith(y,5+i);           // line imcompatible with collisions unless solver reinitialised after collision events
+    }
     condensation_droplet_growth(ydot, &p, &temp, &qv, &qc, ptr, t, nsupers);
   }
 

@@ -186,7 +186,6 @@ int main(){
   retval = CVodeSetUserData(cvode_mem, data);
   if (check_retval((void *)&retval, "CVodeSetUserData", 1)) return(1);
   
-
   /* 6. Call CVodeSVtolerances to specify the scalar relative tolerance
    * and vector absolute tolerances */
   retval = CVodeSVtolerances(cvode_mem, RTOL, abstol);
@@ -243,6 +242,7 @@ int main(){
   CollsPerTstep = TSTEP/(COLL_TSTEP);
   tout = T0+TSTEP/CollsPerTstep;   // first output time = t0 + TSTEP/CollsPerTstep
   retval2 = 0;
+
   for (int iout = 0; iout < NOUT; iout++){
 
     PrintOutput(t, y);
@@ -253,7 +253,6 @@ int main(){
       /* 14(a) Advance solution in time */
       retval = CVode(cvode_mem, tout, y, &t, CV_NORMAL);
       if (check_retval(&retval, "CVode", 1)) break;
-
 
       // if (retval == CV_ROOT_RETURN) {
       //   retvalr = CVodeGetRootInfo(cvode_mem, rootsfound);
@@ -266,16 +265,15 @@ int main(){
 
         retval2 = collide_droplets(nsupers, nhalf, scale_p, ptr, pvec);
         
-        /* update odesolver values for droplet properties following collision event */
-        SDloop(i, nsupers){
-          Ith(y,5+i) = (ptr+i) -> r;
+        if(doCond){
+          /* update odesolver values for droplet properties following collision event */
+          SDloop(i, nsupers){
+            Ith(y,5+i) = (ptr+i) -> r;
+          }
+          /* Reinitialize the solver (SLOW! Don't do unless absolutely vital) */
+          retval = CVodeReInit(cvode_mem, tout, y);
+          if (check_retval((void *)&retval, "CVodeReInit", 1)) return(1);
         }
-        
-        /* Reinitialize the solver */
-        cout << "reinit solver" << endl;
-        retval = CVodeReInit(cvode_mem, t, y);
-        if (check_retval((void *)&retval, "CVodeReInit", 1)) return(1);
-
       }
           
       /* 14(c) Continute to next timestep */
@@ -284,6 +282,9 @@ int main(){
       }
 
     }
+
+
+    
 
     /* 14(d) Output solution and error after every large timestep */
     //retval = ComputeError(t, y, e, &ec, udata);

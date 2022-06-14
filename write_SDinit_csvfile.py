@@ -226,11 +226,13 @@ if use_volexponential:
 
   fig, ax = plt.subplots(figsize=(9,6))
 
-  nbins = 50
+  nbins = 100
   rspan = [np.amin(r0*R0), np.amax(r0*R0)]
-  mass = 4/3*np.pi*(r0*R0)**3 * CONSTS["RHO_L"]
-  wghts = eps*mass/VOL
   smoothsig = 0.62*nsupers**(-1/5)
+  
+  mass = R0**3*RHO0*m_sol*(1-CONSTS["RHO_L"]/CONSTS["RHO_SOL"])
+  mass += 4/3.0*np.pi*((r0*R0)**3)*CONSTS["RHO_L"]                                 
+  wghts = eps*mass/VOL
 
   ax2 = linear_twinax(ax, np.log(r0*R0), wghts)
   hist, hedgs = logr_distribution(rspan, nbins, r0*R0, wghts, ax=ax, 

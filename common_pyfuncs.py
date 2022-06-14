@@ -159,6 +159,9 @@ def linear_twinax(ax, lnr, eps):
     axb.xaxis.tick_bottom() 
     axb.xaxis.set_label_position('bottom') 
 
+    # xlims = [np.exp(l)*1e6 for l in ax.get_xlim()]
+    # axb.set_xlim(xlims)
+
     return axb
 
 
