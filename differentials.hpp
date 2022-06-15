@@ -205,8 +205,8 @@ static realtype dtemp_dt_adia(N_Vector ydot, realtype p,
   and condensation of water vapour.
  */
 
-static int condensation_droplet_growth(N_Vector ydot, realtype* p, 
-    realtype* temp, realtype* qv, realtype*  qc, Superdrop* ptr, realtype t,
+static int condensation_droplet_growth(realtype dt, realtype* p, 
+    realtype* temp, realtype* qv, realtype*  qc, Superdrop* ptr,
     int nsupers)
 {
   realtype dr, psat, s_ratio, r, eps, a, b, fkl, fdl;
@@ -232,20 +232,19 @@ static int condensation_droplet_growth(N_Vector ydot, realtype* p,
     
     /*  if droplets are dry, do not shrink further */
     if (r<= (ptr+i) -> dry_r() && dr<=0.0){
-      Ith(ydot, 5+i) = 0.0;
-    }
-    else{
-      Ith(ydot, 5+i) = dr;
+      dr = 0.0;
     }
 
+    (ptr+i) -> r += dr*dt;
 
-    realtype dm = dm_dt_const*pow(r,2.0)*Ith(ydot, 5+i)*eps;
-    tot_drhov=tot_drhov+dm;                               //drho_condensed_vapour/dt
+    realtype dm = dm_dt_const*pow(r,2.0)*dr*eps;
+    tot_drhov += dm;                               //drho_condensed_vapour/dt
   }
-  dqc = Ith(ydot, 4) = tot_drhov/dlc::Rho_dry; 
-  dqv = Ith(ydot, 3) = -dqc; 
-  dtemp_c = -dlc::Latent_v/cp_moist(qv, qc)*dqv;
-  Ith(ydot, 2)+=dtemp_c;
+  
+  // dqc = Ith(ydot, 4) = tot_drhov/dlc::Rho_dry; 
+  // dqv = Ith(ydot, 3) = -dqc; 
+  // dtemp_c = -dlc::Latent_v/cp_moist(qv, qc)*dqv;
+  // Ith(ydot, 2)+=dtemp_c;
 
   return(0);
 }
@@ -263,33 +262,18 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
   
   UserData data = (UserData) user_data;
-  realtype p, temp, qv, qc, w;
-  bool doCond;
-  int nsupers;
-  Superdrop* ptr;
-  w = data -> w;
-  doCond = data -> doCond;
-  nsupers = data -> nsupers;
-  ptr = data -> ptr;
-  
-  p = Ith(y,1); 
-  temp = Ith(y,2);
-  qv = Ith(y,3);
-  qc = Ith(y,4);
-  
+
+  // bool doCond;
+  // int nsupers;
+  // Superdrop* ptr;
+  // doCond = data -> doCond;
+  // nsupers = data -> nsupers;
+  // ptr = data -> ptr;
   
   if(doExpand){
-    dp_dt(t, ydot, w);     
-    dtemp_dt_adia(ydot, p, temp, qv, qc);    
+    dp_dt(t, ydot, data -> w);     
+    dtemp_dt_adia(ydot, Ith(y,1), Ith(y,2), Ith(y,3), Ith(y,4));    
   }
-
-  if(doCond){
-    SDloop(i, nsupers){
-    (ptr+i) -> r = Ith(y,5+i);           // line imcompatible with collisions unless solver reinitialised after collision events
-    }
-    condensation_droplet_growth(ydot, &p, &temp, &qv, &qc, ptr, t, nsupers);
-  }
-
 
   return(0);
 }

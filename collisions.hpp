@@ -80,6 +80,7 @@ int collide_droplets(int nsupers, int nhalf, int scale_p,
       
       if (p1 -> eps == gamma*(p2 -> eps)){         
 
+        //cout << p1 << " = " << p2 << endl;
         delta_eps = (p2 -> eps)/2; 
         delta_r = pow((p2 -> r), 3.0) + gamma*(pow((p1 -> r), 3.0));
         delta_r = pow(delta_r, 1.0/3);
@@ -99,8 +100,8 @@ int collide_droplets(int nsupers, int nhalf, int scale_p,
       /* 3.(option a) if eps1 > gamma*eps2 collide to grow 
       drop2 radius and mass via decreasing eps of drop1 SDs*/
       else if( (p1 -> eps) > gamma*(p2 -> eps) ) {       
-        
-        //cout << p1 << " with " << p2 << endl;
+ 
+        //cout << p1 << " > with " << p2 << endl;
         delta_eps = (p1 -> eps) - gamma*(p2 -> eps);
         delta_r = pow((p2 -> r), 3.0) + gamma*(pow((p1 -> r), 3.0));
         delta_r = pow(delta_r, 1.0/3);

@@ -38,7 +38,7 @@ using namespace dlc;
 
 
 /* ODE Solving Constants */
-#define NEQ   4+nsupers                                   // number of equations
+#define NEQ   4                                  // number of equations
 #define Y1    RCONST(p_init/dlc::P0)             // initial y components
 #define Y2    RCONST(temp_init/dlc::TEMP0)
 #define Y4    RCONST(qc_init)
@@ -47,8 +47,7 @@ const realtype  w = iW/dlc::W0;                  // dimensionless w velocity for
 
 #define ZERO  RCONST(0.0)
 #define RTOL  RCONST(rtol)                       // scalar relative tolerance
-#define ATOLy1to4 RCONST(atols[0])               // vector absolute tolerance components for y1 to y4
-#define ATOLy5plus RCONST(atols[1])                  // for y5 onwards (Superdroplets)
+#define ATOLS RCONST(atols)                     // vector absolute tolerance components for y1 to y4
 
 #define T0    RCONST(tspan[0]/dlc::TIME0)        // initial time (dimensionless)          
 #define TSTEP RCONST(tspan[1]/nout/dlc::TIME0)   // output time step (dimensionless)     
@@ -152,10 +151,6 @@ int main(){
   Ith(y,2) = Y2;
   Ith(y,3) = Y3;
   Ith(y,4) = Y4;
-  SDloop(i, nsupers) 
-  {
-    Ith(y,i+5) = drops_arr[i].getR0();
-  }
 
   /* 3. Set the vector absolute tolerance */
   abstol = N_VNew_Serial(NEQ, sunctx);
@@ -163,11 +158,7 @@ int main(){
 
   for(int i=1; i<5; i++)
   {
-    Ith(abstol,i) = ATOLy1to4;
-  }
-  SDloop(i, nsupers)
-  {
-    Ith(abstol,i+5) = ATOLy5plus;
+    Ith(abstol,i) = ATOLS[i-1];
   }
 
   /* 4. Call CVodeCreate to create the solver memory and specify the
@@ -260,33 +251,35 @@ int main(){
       //   PrintRootInfo(rootsfound[0],rootsfound[1]);
       // }
 
-      /* 14(b) Simulate Superdroplet Collisions */
+      /* 14(b) Simulate Superdroplet Diffusion Growth */
+      if(doCond){
+        
+        condensation_droplet_growth(COLL_TSTEP, &Ith(y,1), &Ith(y,2), 
+                    &Ith(y,3), &Ith(y,4), ptr, nsupers);
+
+        /* Reinitialize the solver (SLOW! Don't do unless absolutely vital) */
+        retval = CVodeReInit(cvode_mem, tout, y);
+        if (check_retval((void *)&retval, "CVodeReInit", 1)) return(1);
+      }
+      
+      
+      /* 14(c) Simulate Superdroplet Collisions */
       if (doColl){
 
         retval2 = collide_droplets(nsupers, nhalf, scale_p, ptr, pvec);
         
-        if(doCond){
-          /* update odesolver values for droplet properties following collision event */
-          SDloop(i, nsupers){
-            Ith(y,5+i) = (ptr+i) -> r;
-          }
-          /* Reinitialize the solver (SLOW! Don't do unless absolutely vital) */
-          retval = CVodeReInit(cvode_mem, tout, y);
-          if (check_retval((void *)&retval, "CVodeReInit", 1)) return(1);
-        }
       }
           
-      /* 14(c) Continute to next timestep */
+      /* 14(d) Continute to next timestep */
       if (retval == CV_SUCCESS && retval2 == CV_SUCCESS) {
-        tout += TSTEP/CollsPerTstep;
+        tout += COLL_TSTEP;
       }
 
     }
 
 
-    
 
-    /* 14(d) Output solution and error after every large timestep */
+    /* 14(e) Output solution and error after every large timestep */
     //retval = ComputeError(t, y, e, &ec, udata);
     //if (check_retval(&retval, "ComputeError", 1)) break;
     WriteOutput(t, y, nsupers, ptr, YFID, SDFID, NULL);
