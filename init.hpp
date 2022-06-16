@@ -21,25 +21,24 @@ bool doColl        = false;                       // enable collisions of superd
 
 /* integration params */
 double tspan[2]    = {0, 4000};                   // time span of integration [s]
-int nout           = 500;                         // No. time points to evaluate (save data at)
-double rtol        = 1e-6;                       // relative tolerance (tol) for integration
+int nout           = 40;                          // No. time points to evaluate (save data at)
+double rtol        = 1e-6;                        // relative tolerance (tol) for integration
 double atols[4]    = {1e-6,1e-6,1e-6,1e-6};       // absolute tols for thermodynamics [P, T, qv, qc]
 
 
 /* droplet init params. First create superdroplet eps, r0
 and m_sol data using python "create_superdrop_init.py" */
 //int nsupers        = 32768;                           // no. distinct superdrop objects in array
-int nsupers        = 32;                           // no. distinct superdrop objects in array
+int nsupers        = 10;                           // no. distinct superdrop objects in array
 double iRho_l      = dlc::Rho_l;
 double iRho_sol    = dlc::Rho_sol;
 double iMr_sol     = dlc::Mr_sol;
 int iIONIC         = dlc::IONIC;                 
 
-/* collision parameters */
-double coll_tstep     = 0.0001;                         // maximum time between each droplet collisions event [s]
-
-                                                
-
+/* SD Model timestep parameters */                                       
+double cond_tstep     = 0.0001;                    // time between SD condensation events  = ceil(coll/cond)*min(coll,cond) [s]
+double coll_tstep     = 1;                    // time between SD collision events = ceil(coll/cond)*min(coll,cond) [s]
+       
 
 
 

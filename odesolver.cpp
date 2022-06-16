@@ -53,6 +53,7 @@ const realtype  w = iW/dlc::W0;                  // dimensionless w velocity for
 #define TSTEP RCONST(tspan[1]/nout/dlc::TIME0)   // output time step (dimensionless)     
 #define NOUT  nout                               // number of output times
 
+#define COND_TSTEP RCONST(cond_tstep/dlc::TIME0)                    // No. droplet collisions events
 #define COLL_TSTEP RCONST(coll_tstep/dlc::TIME0)                    // No. droplet collisions events
 
 
@@ -79,14 +80,16 @@ int main(){
   SUNMatrix A;
   SUNLinearSolver LS;
   void *cvode_mem;
-  int retval, retval2;          // reusable return flags
+  int retval;          // reusable return flags
   //int retvalr;           
   //int rootsfound[2];
 
   // Create problem stuff
-  realtype t, tout, CollsPerTstep;
+  realtype t, tout;
   N_Vector y; //, e;
   N_Vector abstol;
+  realtype ItersPerTstep, min_tstep; 
+  realtype delta_t, dt_cond, dt_coll;
 
   // Output files to write to
   FILE* STSFID;                // integration stats output file 
@@ -229,56 +232,77 @@ int main(){
   /* 14. RUN SOLVER
   For NOUT iterations, call CVode, test for error then
   print and write results and iterate (if sucess) */
+  min_tstep = min(COLL_TSTEP, COND_TSTEP);         // smallest timestep is one to increment time by
+  ItersPerTstep = TSTEP/min_tstep;                 // no. of increments = ceil(TSTEP/min_tstep) >= 1
+  tout = T0+ceil(ItersPerTstep)*min_tstep;         // first output time of ODE solver
 
-  CollsPerTstep = TSTEP/(COLL_TSTEP);
-  tout = T0+TSTEP/CollsPerTstep;   // first output time = t0 + TSTEP/CollsPerTstep
-  retval2 = 0;
-
+  realtype dtemp, dqv, dqc; 
   for (int iout = 0; iout < NOUT; iout++){
 
     PrintOutput(t, y);
 
-    for(int istep=0; istep<ceil(CollsPerTstep); istep++)                 // have ceil(CollsPerTstep) collisions per output timestep
+    /* Run SD Model */
+    //cout << " -- t of SDs: " << t << endl;
+    delta_t = 0;
+    dtemp = 0;
+    dqv = 0;
+    dqc = 0; 
+    for(int istep=0; istep<ceil(ItersPerTstep); istep++)                 // increment time for SDs simulation
     {
-      
-      /* 14(a) Advance solution in time */
-      retval = CVode(cvode_mem, tout, y, &t, CV_NORMAL);
-      if (check_retval(&retval, "CVode", 1)) break;
-
-      // if (retval == CV_ROOT_RETURN) {
-      //   retvalr = CVodeGetRootInfo(cvode_mem, rootsfound);
-      //   if (check_retval(&retvalr, "CVodeGetRootInfo", 1)) return(1);
-      //   PrintRootInfo(rootsfound[0],rootsfound[1]);
-      // }
+      delta_t += min_tstep;
+      dt_cond += min_tstep;  // change in time since last condensation event
+      dt_coll += min_tstep;  // change in time since last collision event
 
       /* 14(b) Simulate Superdroplet Diffusion Growth */
       if(doCond){
-        
-        condensation_droplet_growth(COLL_TSTEP, &Ith(y,1), &Ith(y,2), 
-                    &Ith(y,3), &Ith(y,4), ptr, nsupers);
-
-        /* Reinitialize the solver (SLOW! Don't do unless absolutely vital) */
-        retval = CVodeReInit(cvode_mem, tout, y);
-        if (check_retval((void *)&retval, "CVodeReInit", 1)) return(1);
+        if(dt_cond >= COND_TSTEP)
+        {
+          //cout << "cond @ " << t+delta_t << endl;
+          condensation_droplet_growth(COND_TSTEP, &Ith(y,1), &Ith(y,2), 
+                      &Ith(y,3), &Ith(y,4), &dtemp, &dqv, &dqc, ptr, nsupers);
+          dt_cond=0;
+        }
       }
-      
-      
+    
       /* 14(c) Simulate Superdroplet Collisions */
       if (doColl){
-
-        retval2 = collide_droplets(nsupers, nhalf, scale_p, ptr, pvec);
+        if(dt_coll >= COLL_TSTEP)
+        {
+          //cout << "coll @ " << t+delta_t << endl;
+          collide_droplets(nsupers, nhalf, scale_p, ptr, pvec);
+          dt_coll=0;
+        }
+      }
         
-      }
-          
-      /* 14(d) Continute to next timestep */
-      if (retval == CV_SUCCESS && retval2 == CV_SUCCESS) {
-        tout += COLL_TSTEP;
-      }
+    }
+    //cout << "t of SDs -> " << t+delta_t << endl;
 
+    /* 14(a) Advance ODE solution in time */
+    //cout << " -- t of ODE SOLVER: " << t << endl;
+    retval = CVode(cvode_mem, tout, y, &t, CV_NORMAL);
+    if (check_retval(&retval, "CVode", 1)) break;
+    //cout << "t of ODE SOLVER -> " << tout << endl;
+
+    // if (retval == CV_ROOT_RETURN) {
+    //   retvalr = CVodeGetRootInfo(cvode_mem, rootsfound);
+    //   if (check_retval(&retvalr, "CVodeGetRootInfo", 1)) return(1);
+    //   PrintRootInfo(rootsfound[0],rootsfound[1]);
+    // }
+     
+    /* 14(d) Continute to next timestep */
+    if(doCond){
+      Ith(y,2) += dtemp; 
+      Ith(y,3) += dqv;
+      Ith(y,4) += dqc;
+      /* Reinitialize the solver after discontinuous change in y */
+      retval = CVodeReInit(cvode_mem, tout, y);
+      if (check_retval((void *)&retval, "CVodeReInit", 1)) return(1);
     }
 
-
-
+    if (retval == CV_SUCCESS) {
+      tout += delta_t;
+    }
+    
     /* 14(e) Output solution and error after every large timestep */
     //retval = ComputeError(t, y, e, &ec, udata);
     //if (check_retval(&retval, "ComputeError", 1)) break;
@@ -299,9 +323,10 @@ int main(){
   printf("\nLast Iteration Statistics:\n");
   retval = CVodePrintAllStats(cvode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
 
+
   /* 16. Free memory */
   N_VDestroy(y);                            /* Free y vector */
-  // N_VDestroy(e);                            /* Free error vector */
+  // N_VDestroy(e);                         /* Free error vector */
   N_VDestroy(abstol);                       /* Free abstol vector */
   free(data);                               /* free user_data pointer struc */
   CVodeFree(&cvode_mem);                    /* Free CVODE memory */

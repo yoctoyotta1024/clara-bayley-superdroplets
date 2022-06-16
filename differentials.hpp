@@ -205,16 +205,16 @@ static realtype dtemp_dt_adia(N_Vector ydot, realtype p,
   and condensation of water vapour.
  */
 
-static int condensation_droplet_growth(realtype dt, realtype* p, 
-    realtype* temp, realtype* qv, realtype*  qc, Superdrop* ptr,
-    int nsupers)
+static int condensation_droplet_growth(realtype delt, realtype* p, 
+    realtype* temp, realtype* qv, realtype*  qc,
+    realtype* dtemp, realtype* dqv, realtype* dqc,
+    Superdrop* ptr, int nsupers)
 {
-  realtype dr, psat, s_ratio, r, eps, a, b, fkl, fdl;
-  realtype tot_drhov, dqc, dqv, dtemp_c;
+  realtype dr, pv, psat, s_ratio, r, eps, a, b, fkl, fdl;
+  realtype tot_drhov;
 
   psat = saturation_pressure(*temp);
- 
-  realtype pv = (*p)*(*qv)/(dlc::Mr_ratio+(*qv));
+  pv = (*p)*(*qv)/(dlc::Mr_ratio+(*qv));
   s_ratio = pv/psat;              // parcel supersaturation ratio 
  
   /* radial growth/shrink each droplet 
@@ -235,16 +235,16 @@ static int condensation_droplet_growth(realtype dt, realtype* p,
       dr = 0.0;
     }
 
-    (ptr+i) -> r += dr*dt;
+    (ptr+i) -> r += dr*delt;
 
-    realtype dm = dm_dt_const*pow(r,2.0)*dr*eps;
-    tot_drhov += dm;                               //drho_condensed_vapour/dt
+    realtype dm = dm_dt_const*pow(r,2.0)*eps*dr*delt;     // dm/dt * delta t
+    tot_drhov += dm;                               // drho_condensed_vapour/dt * delta t
   }
   
-  // dqc = Ith(ydot, 4) = tot_drhov/dlc::Rho_dry; 
-  // dqv = Ith(ydot, 3) = -dqc; 
-  // dtemp_c = -dlc::Latent_v/cp_moist(qv, qc)*dqv;
-  // Ith(ydot, 2)+=dtemp_c;
+  // *dqc += tot_drhov/dlc::Rho_dry; 
+  *dqc += 0;
+  *dqv += -(*dqc); 
+  *dtemp +=  (dlc::Latent_v/cp_moist(qv, qc))*(*dqc);
 
   return(0);
 }
