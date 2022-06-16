@@ -16,7 +16,7 @@ double p_init      = 100000;                     // initial pressure [Pa]
 double relh_init   = 60;                         // initial relative humidity (%)
 double qc_init     = 0;                          // initial liquid water content []
 bool doExpand      = true;                      // enable condensation droplet growth
-bool doCond        = true;                      // enable condensation droplet growth
+bool doCond        = false;                      // enable condensation droplet growth
 bool doColl        = true;                       // enable collisions of superdroplets
 
 /* integration params */
