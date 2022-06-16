@@ -236,7 +236,8 @@ int main(){
   ItersPerTstep = TSTEP/min_tstep;                 // no. of increments = ceil(TSTEP/min_tstep) >= 1
   tout = T0+ceil(ItersPerTstep)*min_tstep;         // first output time of ODE solver
 
-  realtype dtemp, dqv, dqc; 
+  realtype temp, qv, qc;
+  realtype deltemp, delqv, delqc; 
   for (int iout = 0; iout < NOUT; iout++){
 
     PrintOutput(t, y);
@@ -244,9 +245,12 @@ int main(){
     /* Run SD Model */
     //cout << " -- t of SDs: " << t << endl;
     delta_t = 0;
-    dtemp = 0;
-    dqv = 0;
-    dqc = 0; 
+    deltemp = 0;
+    delqv = 0;
+    delqc = 0; 
+    temp = Ith(y,2);
+    qv = Ith(y,3);
+    qc = Ith(y,4);
     for(int istep=0; istep<ceil(ItersPerTstep); istep++)                 // increment time for SDs simulation
     {
       delta_t += min_tstep;
@@ -258,8 +262,8 @@ int main(){
         if(dt_cond >= COND_TSTEP)
         {
           //cout << "cond @ " << t+delta_t << endl;
-          condensation_droplet_growth(COND_TSTEP, &Ith(y,1), &Ith(y,2), 
-                      &Ith(y,3), &Ith(y,4), &dtemp, &dqv, &dqc, ptr, nsupers);
+          condensation_droplet_growth(COND_TSTEP, &Ith(y,1), &temp, 
+                      &qv, &qc, &deltemp, &delqv, &delqc, ptr, nsupers);
           dt_cond=0;
         }
       }
@@ -291,9 +295,9 @@ int main(){
      
     /* 14(d) Continute to next timestep */
     if(doCond){
-      Ith(y,2) += dtemp; 
-      Ith(y,3) += dqv;
-      Ith(y,4) += dqc;
+      Ith(y,2) += deltemp; 
+      Ith(y,3) += delqv;
+      Ith(y,4) += delqc;
       /* Reinitialize the solver after discontinuous change in y */
       retval = CVodeReInit(cvode_mem, tout, y);
       if (check_retval((void *)&retval, "CVodeReInit", 1)) return(1);

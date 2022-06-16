@@ -207,7 +207,7 @@ static realtype dtemp_dt_adia(N_Vector ydot, realtype p,
 
 static int condensation_droplet_growth(realtype delt, realtype* p, 
     realtype* temp, realtype* qv, realtype*  qc,
-    realtype* dtemp, realtype* dqv, realtype* dqc,
+    realtype* deltemp, realtype* delqv, realtype* delqc,
     Superdrop* ptr, int nsupers)
 {
   realtype dr, pv, psat, s_ratio, r, eps, a, b, fkl, fdl;
@@ -241,10 +241,16 @@ static int condensation_droplet_growth(realtype delt, realtype* p,
     tot_drhov += dm;                               // drho_condensed_vapour/dt * delta t
   }
   
-  // *dqc += tot_drhov/dlc::Rho_dry; 
-  *dqc += 0;
-  *dqv += -(*dqc); 
-  *dtemp +=  (dlc::Latent_v/cp_moist(qv, qc))*(*dqc);
+  //*delqc += tot_drhov/dlc::Rho_dry; 
+  //*delqv += -(*delqc); 
+  //*deltemp += (dlc::Latent_v/cp_moist(qv, qc))*(*delqc);
+  *delqc += 0; 
+  *delqv += 0; 
+  *deltemp += 0;
+
+  *qc += *delqc;
+  *qv += *delqv;
+  *temp += *deltemp;
 
   return(0);
 }

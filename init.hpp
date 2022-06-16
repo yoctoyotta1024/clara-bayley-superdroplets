@@ -17,7 +17,7 @@ double relh_init   = 60;                         // initial relative humidity (%
 double qc_init     = 0;                          // initial liquid water content []
 bool doExpand      = true;                      // enable condensation droplet growth
 bool doCond        = true;                      // enable condensation droplet growth
-bool doColl        = false;                       // enable collisions of superdroplets
+bool doColl        = true;                       // enable collisions of superdroplets
 
 /* integration params */
 double tspan[2]    = {0, 4000};                   // time span of integration [s]
