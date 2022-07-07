@@ -32,8 +32,8 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
 const realtype dp_dt_const = dlc::W0*dlc::TIME0*DC::G/(DC::RGAS_DRY*dlc::TEMP0); 
 const realtype lpsrate = 0.0062/dlc::TEMP0*dlc::W0*dlc::TIME0;
 const realtype tempg = 273.15/dlc::TEMP0;
-const realtype pg = 100000/dlc::P0;
-const realtype zg = 0/(dlc::W0*dlc::TIME0);
+const realtype pg = 100000.0/dlc::P0;
+const realtype zg = 0.0/(dlc::W0*dlc::TIME0);
 const realtype gamma = DC::G/(DC::RGAS_DRY*0.0062)-1;
 /* ----------------------------------------------- */
 

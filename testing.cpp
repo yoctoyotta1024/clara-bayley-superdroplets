@@ -9,8 +9,7 @@
 #include "collisions.hpp"
 
 namespace dlc = dimless_constants;
-using namespace dlc;
-using namespace std;
+
 
 
 
