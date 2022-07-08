@@ -8,6 +8,21 @@
 
 
 
+void print_output(const double t, const double y[4])
+/* print t, y to terminal */
+{
+
+  int p = 4; 
+  cout << "t=" << fixed << setprecision(p) << t << ", ";     
+  cout << "y=[" << scientific << setprecision(p) << y[0] << ", ";     
+  cout << scientific << setprecision(p) << y[1]  << ", ";     
+  cout << scientific << setprecision(p) << y[2]  << ", ";     
+  cout << scientific << setprecision(p) << y[3]  << "]\n";     
+}
+
+
+
+
 void initialise_Superdrop_instances(const string FNAME, 
         Superdrop (&superdrops_arr)[init::NSUPERS], const int nsupers)
 {
@@ -103,6 +118,37 @@ void initialise_Superdrop_instances(const string FNAME,
 
 
 
+void write_outputheader(const string solution_csv)
+/* Create new .csv file with header for writing data to */
+{
+  ofstream wfile;
+  wfile.open(solution_csv, ios::trunc);
+
+  wfile <<  "/* columns are dimensionless:  t,    P (y[0]),    T (y[1]),"
+              "    qv (y[2]),   qc (y[3]),     */\n";
+
+  wfile.close();
+
+}
+
+
+
+
+void write_output(ofstream &wfile, const double t, const double y[4])
+/* Write output t, y to wfile on disk */
+{
+  int p = 16;     // set precision
+
+  wfile << scientific << setprecision(p) << t << ",";      
+  wfile << scientific << setprecision(p) << y[0] << ",";      
+  wfile << scientific << setprecision(p) << y[1] << ",";      
+  wfile << scientific << setprecision(p) << y[2] << ",";      
+  wfile << scientific << setprecision(p) << y[3] << "\n";         
+}
+
+
+
+
 
 void write_superdrop_outputheader(const string solutionSD_csv)
 /* Create new .csv file with header for writing superdroplet data to */
@@ -118,7 +164,6 @@ void write_superdrop_outputheader(const string solutionSD_csv)
   wfile.close();
 
 }
-
 
 
 
@@ -151,15 +196,6 @@ void write_superdrop_output(ofstream &wfile,
   wfile << scientific << setprecision(p) << superdrops_arr[nsupers-1].m_sol << "\n";  
   
 }
-
-
-
-
-
-
-
-
-
 
 
 

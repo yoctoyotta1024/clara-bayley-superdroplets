@@ -16,8 +16,6 @@ coupled with a CVODE ode solver for the kinetics
 #include "collisions4SDM.hpp"
 #include "condensationgrowth4SDM.hpp"
 
-#include "cvode_helpers.hpp"
-
 
 //using namespace std;
 namespace dlc = dimless_constants;

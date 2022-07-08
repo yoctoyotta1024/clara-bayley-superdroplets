@@ -8,11 +8,7 @@
 #define CONDENSATIONGROWTH4SDM_HPP
 
 
-
-// #include <iostream>
-// #include <vector>
-// #include <random>
-// #include <algorithm>
+#include <math.h>
 
 #include "claras_SDinit.hpp"
 #include "claras_SDconstants.hpp"
@@ -54,7 +50,7 @@ void condensation_onto_superdroplets(const double delt, double &p,
 
 
 
-void variables_b4tstep(double y[4], double &p, double &temp, double &qv, 
+void variables_b4tstep(const double y[4], double &p, double &temp, double &qv, 
       double &qc, double &deltemp, double &delqv,
       double &delqc);
    /* copies values of kinematic variables from CVODE

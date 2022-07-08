@@ -9,14 +9,6 @@ of superdrop class */
 #ifndef COMMON2ALLSUPERDROPS_HPP
 #define COMMON2ALLSUPERDROPS_HPP
 
-// #include <iostream>
-// #include <math.h>
-// #include <fstream>
-// #include <sstream>
-// #include <vector>
-
-// using namespace std;
-
 
 
 class Common2AllSuperdrops

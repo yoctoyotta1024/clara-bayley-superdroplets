@@ -25,10 +25,22 @@ using namespace std;
 
 
 
+void print_output(const double t, const double y[4]);
+/* print t, y to terminal */
+
+
 void initialise_Superdrop_instances(string FNAME, 
         Superdrop (&superdrops_arr)[init::NSUPERS], int nsupers);
 /* read .csv file for initial eps, r and m_sol and then create 
 	instances of Superdroplet class */ 
+
+
+void write_outputheader(const string solution_csv);
+/* Create new .csv file with header for writing data to */
+
+
+void write_output(ofstream &wfile, const double t, const double y[4]);
+/* Write output t, y to wfile on disk */
 
 
 void write_superdrop_outputheader(const string solutionSD_csv);

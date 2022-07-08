@@ -103,7 +103,7 @@ void condensation_onto_superdroplets(const double delt, double &p,
 
 
 
-void variables_b4tstep(double y[4], double &p, double &temp, double &qv, 
+void variables_b4tstep(const double y[4], double &p, double &temp, double &qv, 
       double &qc, double &deltemp, double &delqv,
       double &delqc)
 	/* copies values of kinematic variables from CVODE

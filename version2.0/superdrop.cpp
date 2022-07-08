@@ -3,7 +3,6 @@
 /* Functionality file for superdrops class */
 
 
-//#include "common2allsuperdrops.hpp"
 #include "superdrop.hpp"
 
 

@@ -8,7 +8,7 @@ for SD model */
 #define CLARAS_SDINIT_HPP 
 
 
-#include <iostream>
+//#include <iostream>
 
 #include "claras_SDconstants.hpp"
 namespace dlc = dimless_constants;
@@ -26,6 +26,7 @@ namespace init{
 
 
   /* Model Settings */
+  const bool doThermo      = false;                       // enable condensational growth of superdroplets
   const bool doCond        = true;                       // enable condensational growth of superdroplets
   const bool doColl        = false;                        // enable collisions of superdroplets
 
@@ -49,8 +50,15 @@ namespace init{
   const double COND_TSTEP     = 0.0001;                // time between SD condensation events  = ceil(coll/cond)*min(coll,cond) [s]
   const double COLL_TSTEP     = 1;                     // time between SD collision events = ceil(coll/cond)*min(coll,cond) [s]
 
-  const int nout           = 40;                             // No. time points to evaluate (save data at)
-  const double TSPAN[2]    = {0, 4000};                      // time span of integration [s]
+  const int nout           = 40;                       // No. time points to evaluate (save data at)
+  const double TSPAN[2]    = {0, 4000};                // time span of integration [s]
+
+  /* CVODE ODE solver paramters */
+  const double iW          = 0.5;                      // vertical parcel speed [m/s] (dP/dt ~ w*dP/dz)
+  const double rtol        = 1e-6;                     // relative tolerance (tol) for integration
+  const double atols[4]    = {1e-6,1e-6,1e-6,1e-6};    // absolute tols for thermodynamics [P, T, qv, qc]
+
+
 
 }
 

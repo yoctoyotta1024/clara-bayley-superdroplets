@@ -7,12 +7,6 @@
 #define SUPERDROP_HPP
 
 #include <math.h>
-// #include <iostream>
-// #include <fstream>
-// #include <sstream>
-// #include <vector>
-// using namespace std;
-
 
 #include "common2allsuperdrops.hpp"
 #include "claras_SDconstants.hpp"
