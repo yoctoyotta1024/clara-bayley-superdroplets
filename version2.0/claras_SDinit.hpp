@@ -26,8 +26,8 @@ namespace init{
 
 
   /* Model Settings */
-  const bool doThermo      = false;                       // enable condensational growth of superdroplets
-  const bool doCond        = true;                       // enable condensational growth of superdroplets
+  const bool doThermo      = true;                       // enable condensational growth of superdroplets
+  const bool doCond        = false;                       // enable condensational growth of superdroplets
   const bool doColl        = false;                        // enable collisions of superdroplets
 
   /* initial parcel conditions */

@@ -1,26 +1,16 @@
-// Author: Clara Bayley
-// File: mainODE.cpp
-/* This file runs the CVODE ode solver 
-for the evolution of the kinetics 
-(p, temp, qv and qc) over time */
-/* compile with: g++ -DNDEBUG -Wall -g -std=c++11 
--I/usr/local/sundials-6/include mainODE.cpp */
-
-
 #include <iostream>
+//#include <stdio.h>
 #include <math.h>
 
-#include "../claras_SDconstants.hpp"
 #include "../claras_SDinit.hpp"
+#include "../claras_SDconstants.hpp"
 #include "cvode_odesolver.hpp"
-#include "cvode_differentials.hpp"
-//#include "differentials.hpp"
 
 
 using namespace std;
-namespace dlc = dimless_constants;
 
 
+/* ------------------------------- Helper Functions ------------------------------- */
 
 double pv2qv(const double pv, const double p)
 	/* Calculate mass mixing ratio
@@ -60,11 +50,11 @@ double saturation_pressure(const double temp)
 
 
 
-/*
- *-------------------------------
- * Main Program
- *-------------------------------
- */
+
+
+
+
+/* ------------------------------- Main Program ------------------------------- */
 int main(){
 
   int cvode_iterfail;                                        // flag to break integration if cvode fails
@@ -132,7 +122,6 @@ int main(){
 
     if(cvode_iterfail){ break; }
     tout += delta_t;
-
 
   }
 

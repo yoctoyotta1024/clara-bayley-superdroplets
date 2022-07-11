@@ -17,7 +17,6 @@ which models evolution of the kinetics
 #include <sunlinsol/sunlinsol_dense.h> /* access to dense SUNLinearSolver      */
 
 #include "cvode_differentials.hpp"
-//#include "differentials.hpp"
 
 using namespace std;
 

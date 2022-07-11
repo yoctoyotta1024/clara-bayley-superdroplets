@@ -106,7 +106,6 @@ int CvodeOdeSolver::advance_solution(const double tout)
 /* Advance ODE solution in time */
 {
 
-  //cout << " -- t of ODE SOLVER: " << t << endl;
   retval = CVode(cvode_mem, tout, y, &t, CV_NORMAL);
   if (check_retval(&retval, "CVode", 1)) return 1;
   //cout << "t of ODE SOLVER -> " << tout << endl;

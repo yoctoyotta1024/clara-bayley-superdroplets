@@ -5,23 +5,22 @@
 cmake_minimum_required(VERSION "3.23.1")
 
 # ass compiler flags
-add_compile_options(-DNDEBUG -Wall -g)
+add_compile_options(-DNDEBUG -Wall -g -std=c++11)
 
 # set project name and source directory of .cpp files
-project("Testing1")
+project("odesolver")
 include_directories(${PROJECT_SOURCE_DIR})
 
 # add executables to project (only one main() function!)
-add_executable("${PROJECT_NAME}" "testing.cpp" "cvode_differentials.cpp" "cvode_odesolver.cpp")
-
+add_executable("${PROJECT_NAME}" "mainODE.cpp" "cvode_odesolver.cpp" "cvode_differentials.cpp" )
 install(TARGETS "${PROJECT_NAME}" DESTINATION bin)        # ${CMAKE_INSTALL_PREFIX}/bin
+install(FILES "testing.cpp" DESTINATION src)              # ${CMAKE_INSTALL_PREFIX}/src 
 
-install(FILES "testing.cpp" DESTINATION src)              # ${CMAKE_INSTALL_PREFIX}/bin 
-
-# specify the C++ standard
-set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_STANDARD_REQUIRED True)
-set(CMAKE_CXX_EXTENSIONS TRUE)
+# # specify the C++ standard (or use flag in line 8 above)
+# set(CMAKE_CXX_STANDARD 11)
+# target_compile_features(${PROJECT_NAME} INTERFACE cxx_std_11)
+# set_target_properties(${PROJECT_NAME} PROPERTIES CMAKE_CXX_STANDARD_REQUIRED ON)
+# set_target_properties(${PROJECT_NAME} PROPERTIES CMAKE_CXX_EXTENSIONS ON)
 
 # CVODE libaries stuff
 # specify libraries to link against
@@ -34,5 +33,5 @@ set(SUNDIALS_LIBS ${CVODE_LIB} ${NVECS_LIB})
 target_link_libraries(${PROJECT_NAME} PRIVATE ${SUNDIALS_LIBS})
 
 
-# CVODE include libaries stuff
+# CVODE include libraries stuff
 target_include_directories(${PROJECT_NAME} PRIVATE /usr/local/sundials-6/include)
