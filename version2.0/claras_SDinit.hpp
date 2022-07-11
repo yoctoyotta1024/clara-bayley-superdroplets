@@ -8,7 +8,7 @@ for SD model */
 #define CLARAS_SDINIT_HPP 
 
 
-//#include <iostream>
+#include <iostream>
 
 #include "claras_SDconstants.hpp"
 namespace dlc = dimless_constants;
@@ -20,7 +20,7 @@ namespace init{
   initialisation of model */
 
   /* filenames */
-  const std::string initdrops_csv = "dimlessSDinit.csv";      //.csv filename for initialisation of superdrops 
+  const std::string initdrops_csv = "../../dimlessSDinit.csv";      //.csv filename for initialisation of superdrops 
   const std::string solutionSD_csv = "solSD.csv";             //.csv filename for initialisation of superdrops 
   const std::string solution_csv = "sol.csv";                 //.csv filename for initialisation of superdrops 
 
