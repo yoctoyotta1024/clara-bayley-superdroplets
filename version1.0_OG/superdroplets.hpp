@@ -23,7 +23,7 @@ const double KOH_B    = 43e-6*dlc::RHO0/dlc::MR0;                // used in dime
 
 class Common2AllSuperdrops
 /* Parent class for all superdroplets. Each 
-      Superdrop instance inherits these properties'' */
+      Superdrop instance inherits these properties */
 
 {
     private:

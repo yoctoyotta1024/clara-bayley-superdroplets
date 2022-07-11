@@ -87,7 +87,6 @@ saturation pressure (psat). Equation taken from
 typhon.physics.thermodynamics.e_eq_water_mk.
 Real temp = T*Temp0, dimensionless psat = psat/P0
  */
-
 realtype saturation_pressure(realtype temp)
 {
   realtype T, lnpsat;

@@ -1,19 +1,17 @@
 #include <iostream>
 #include <stdio.h>
 
-// packages for CVODE ODE solver (for solving thermodynamics)
 #include <cvode/cvode.h>               /* prototypes for CVODE fcts., consts.  */
 #include <nvector/nvector_serial.h>    /* access to serial N_Vector            */
 #include <sunmatrix/sunmatrix_dense.h> /* access to dense SUNMatrix            */
 #include <sunlinsol/sunlinsol_dense.h> /* access to dense SUNLinearSolver      */
-//#include "cvodehelpers.hpp"
 
-// my packages
 #include "init.hpp"
 #include "constants.hpp"
 #include "superdroplets.hpp"
 #include "differentials.hpp"
 #include "collisions.hpp"
+// #include "jacobian.hpp"               // file with Jacobian function (is using optional step 12.)
 #include "cvodehelpers.hpp"
 
 

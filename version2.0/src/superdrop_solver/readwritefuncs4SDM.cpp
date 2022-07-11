@@ -8,16 +8,16 @@
 
 
 
-void print_output(const double t, const double y[4])
-/* print t, y to terminal */
+void print_output(const double t, const double p, 
+      const double temp, const double qv, const double qc)
+/* print t and kinematic data (p, temp, qv, qc) to terminal */
 {
-
-  int p = 4; 
-  cout << "t=" << fixed << setprecision(p) << t << ", ";     
-  cout << "y=[" << scientific << setprecision(p) << y[0] << ", ";     
-  cout << scientific << setprecision(p) << y[1]  << ", ";     
-  cout << scientific << setprecision(p) << y[2]  << ", ";     
-  cout << scientific << setprecision(p) << y[3]  << "]\n";     
+  int prec = 4; 
+  cout << "t=" << fixed << setprecision(prec) << t << ", ";     
+  cout << "y=[" << scientific << setprecision(prec) << p << ", ";     
+  cout << scientific << setprecision(prec) << temp  << ", ";     
+  cout << scientific << setprecision(prec) << qv  << ", ";     
+  cout << scientific << setprecision(prec) << qc  << "]\n";     
 }
 
 
@@ -124,8 +124,9 @@ void write_outputheader(const string solution_csv)
   ofstream wfile;
   wfile.open(solution_csv, ios::trunc);
 
-  wfile <<  "/* columns are dimensionless:  t,    P (y[0]),    T (y[1]),"
-              "    qv (y[2]),   qc (y[3]),     */\n";
+  wfile <<  "/* columns are dimensionless:  t,    "
+            "pressure (y[0]),    temperature (y[1]),"
+            "    qv (y[2]),   qc (y[3]),     */\n";
 
   wfile.close();
 
@@ -134,16 +135,17 @@ void write_outputheader(const string solution_csv)
 
 
 
-void write_output(ofstream &wfile, const double t, const double y[4])
-/* Write output t, y to wfile on disk */
+void write_output(ofstream &wfile, const double t, const double p, 
+      const double temp, const double qv, const double qc)
+/* Output t and kinematic data (p, temp, qv, qc) to wfile on disk */
 {
-  int p = 16;     // set precision
+  int prec = 16;     // set precision
 
-  wfile << scientific << setprecision(p) << t << ",";      
-  wfile << scientific << setprecision(p) << y[0] << ",";      
-  wfile << scientific << setprecision(p) << y[1] << ",";      
-  wfile << scientific << setprecision(p) << y[2] << ",";      
-  wfile << scientific << setprecision(p) << y[3] << "\n";         
+  wfile << scientific << setprecision(prec) << t << ",";      
+  wfile << scientific << setprecision(prec) << p << ",";      
+  wfile << scientific << setprecision(prec) << temp << ",";      
+  wfile << scientific << setprecision(prec) << qv << ",";      
+  wfile << scientific << setprecision(prec) << qc << "\n";         
 }
 
 

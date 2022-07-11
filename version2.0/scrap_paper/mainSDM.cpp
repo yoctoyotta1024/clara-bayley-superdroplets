@@ -80,7 +80,7 @@ int main()
   write_superdrop_output(sdfile, superdrops_arr, nsupers);
 
 
-  /* RUN SUPERDROPLET MODEL COUPLED TO CVODE ODE SOLVER FOR KINEMATICS
+  /* RUN SUPERDROPLET MODEL COUPLED WITH CONST. KINEMATICS
     (collecting data nout no. of times within init::TSPAN) */
   tout = t0+ceil(ItersPerTstep)*min_tstep;         // first output time of ODE solver
   dt_cond = 0;
@@ -127,8 +127,7 @@ int main()
           dt_coll=0;
         }
       }
-
-        
+      
     }
 
     /* RUN CVODE ODE SOLVER */

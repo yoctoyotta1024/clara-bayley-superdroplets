@@ -1,7 +1,7 @@
 // Author: Clara Bayley
-// File: claras_init.hpp
+// File: claras_SDinit.hpp
 /* File containing initial conditions
-for SD model */
+for CVODE ODE solver and SDM */
 
 
 #ifndef CLARAS_SDINIT_HPP

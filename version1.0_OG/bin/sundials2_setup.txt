@@ -1,11 +1,62 @@
-// Author: Clara Bayley
-// File: claras_SDconstants.hpp
-/* File containing constants used by
-SDM and/or CVODE ODE solver */
+// ----------------------------- //
+// --------- init.hpp --------- //
+// ----------------------------- //
+#ifndef INIT
+#define INIT
 
 
-#ifndef CLARAS_SDCONSTANTS_HPP
-#define CLARAS_SDCONSTANTS_HPP
+#include "constants.hpp"
+namespace dlc = dimless_constants;
+
+/* File containing initial conditions & setup
+for ODE solver */
+
+/* initial parcel conditions */
+double iVOL        = 1e6;                        // parcel volume [m^3]
+double iW          = 0.5;                        // vertical parcel speed [m/s] (dP/dt ~ w*dP/dz)
+double temp_init   = 273.15;                     // initial parcel temperature [T]
+double p_init      = 100000;                     // initial pressure [Pa]
+double relh_init   = 60;                         // initial relative humidity (%)
+double qc_init     = 0;                          // initial liquid water content []
+bool doExpand      = true;                       // enable condensation droplet growth
+bool doCond        = false;                      // enable condensation droplet growth
+bool doColl        = false;//true;               // enable collisions of superdroplets
+
+/* integration params */
+double tspan[2]    = {0, 4000};                   // time span of integration [s]
+int nout           = 40;                          // No. time points to evaluate (save data at)
+double rtol        = 1e-6;                        // relative tolerance (tol) for integration
+double atols[4]    = {1e-6,1e-6,1e-6,1e-6};       // absolute tols for thermodynamics [P, T, qv, qc]
+
+
+/* droplet init params. First create superdroplet eps, r0
+and m_sol data using python "create_superdrop_init.py" */
+//int nsupers        = 32768;                           // no. distinct superdrop objects in array
+int nsupers        = 10;                           // no. distinct superdrop objects in array
+double iRho_l      = dlc::Rho_l;
+double iRho_sol    = dlc::Rho_sol;
+double iMr_sol     = dlc::Mr_sol;
+int iIONIC         = dlc::IONIC;                 
+
+/* SD Model timestep parameters */                                       
+double cond_tstep     = 0.0001;                    // time between SD condensation events  = ceil(coll/cond)*min(coll,cond) [s]
+double coll_tstep     = 1;                    // time between SD collision events = ceil(coll/cond)*min(coll,cond) [s]
+       
+
+
+
+
+
+#endif // INIT
+// ----------------------------- //
+
+
+
+// ----------------------------- //
+// --------- constants.hpp --------- //
+// ----------------------------- //
+#ifndef CONSTANTS
+#define CONSTANTS
 
 
 /* Constants used in Superdrops Model NOTE: Any 
@@ -57,7 +108,7 @@ const double CP0        = DC::CP_DRY;                  // Heat capacity [J/Kg/K]
 const double MR0        = DC::MR_DRY;                  // molecular molar mass [Kg/mol]
 const double R0         = 1e-6;                        // droplet radius lengthscale [m]
 //const double VOL0       = 1e6;                         // parcel volume scale [m^3]
-const double F0         = TIME0/(RHO0*R0*R0);          // droplet condensation-diffusion factors [] 
+const double F0         = TIME0/(RHO0*R0*R0);          // droplet diffusion factors [] 
 
 
 /* de-dimensionalise constants for ODEs 
@@ -79,4 +130,8 @@ const int IONIC         = DC::IONIC;
 
 
 
-#endif //CLARAS_SDCONSTANTS_HPP
+#endif //CONSTANTS
+// ----------------------------- //
+
+
+

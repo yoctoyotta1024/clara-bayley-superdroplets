@@ -1,0 +1,13 @@
+make --dry-run --always-make --keep-going --print-directory
+make: Entering directory `/Users/yoctoyotta1024/Documents/spring2022/superdrops-ogversion'
+mkdir -p obj
+g++ -O3 -DNDEBUG -Wall -g -std=c++11 -O3 -DNDEBUG -Wall -g  -I/usr/local/sundials-6/include  -o obj/odesolver.o -c odesolver.cpp
+mkdir -p dep
+g++ -O3 -DNDEBUG -Wall -g -std=c++11 -O3 -DNDEBUG -Wall -g  -I/usr/local/sundials-6/include odesolver.cpp -MM -MT dep/odesolver.o >dep/odesolver.d
+mkdir -p bin
+for i in odesolver  ; do \
+	  echo "g++ -o ${i} obj/${i}.o  -O3 -DNDEBUG -Wall -g -std=c++11 -O3 -DNDEBUG -Wall -g   -I/usr/local/sundials-6/include -L/usr/local/sundials-6/lib -lsundials_cvode -lsundials_nvecserial -lsundials_nvecmanyvector -lm -Wl,-rpath,libdir" ; \
+	  g++ -o ${i} obj/${i}.o  -O3 -DNDEBUG -Wall -g -std=c++11 -O3 -DNDEBUG -Wall -g   -I/usr/local/sundials-6/include -L/usr/local/sundials-6/lib -lsundials_cvode -lsundials_nvecserial -lsundials_nvecmanyvector -lm -Wl,-rpath,libdir ; \
+	done
+make: Leaving directory `/Users/yoctoyotta1024/Documents/spring2022/superdrops-ogversion'
+ 
