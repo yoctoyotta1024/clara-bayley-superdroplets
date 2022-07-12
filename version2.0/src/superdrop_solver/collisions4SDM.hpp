@@ -3,11 +3,8 @@
 /* Header file for functions involved
 in superdroplet model */
 
-
-
 #ifndef COLLISIONS4SDM_HPP
 #define COLLISIONS4SDM_HPP
-
 
 #include <iostream>
 #include <vector>
@@ -20,13 +17,7 @@ in superdroplet model */
 
 using namespace std;
 
-
-
 void collide_droplets(const int nsupers, const int nhalf, vector<int> pvec,
-       Superdrop (&superdrops_arr)[init::NSUPERS]);
+                      Superdrop (&superdrops_arr)[init::NSUPERS]);
 
-
-
-
-
-#endif //COLLISIONS4SDM_HPP
+#endif // COLLISIONS4SDM_HPP

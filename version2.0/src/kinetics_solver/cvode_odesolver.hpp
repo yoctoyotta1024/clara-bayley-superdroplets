@@ -1,13 +1,11 @@
 // Author: Clara Bayley
 // File: cvode_odesolver.hpp
-/* Header file for CVODE ode solver 
-which models evolution of the kinetics 
+/* Header file for CVODE ode solver
+which models evolution of the kinetics
 (p, temp, qv and qc) over time*/
 
-
 #ifndef CVODE_ODESOLVER_HPP
-#define CVODE_ODESOLVER_HPP 
-
+#define CVODE_ODESOLVER_HPP
 
 #include <iostream>
 
@@ -20,58 +18,49 @@ which models evolution of the kinetics
 
 using namespace std;
 
-
-
 class CvodeOdeSolver
 /* CVODE ODE Solver class */
 {
-  private:
+private:
+public:
+  /* SUNDIALS solver stuff */
+  SUNContext sunctx;
+  SUNMatrix A;
+  SUNLinearSolver LS;
+  void *cvode_mem;
+  int retval; // reusable return flag
 
-  public:
-    /* SUNDIALS solver stuff */
-    SUNContext sunctx;
-    SUNMatrix A;
-    SUNLinearSolver LS;
-    void *cvode_mem;
-    int retval;                                           // reusable return flag
-    
-    /* ODE problem stuff */
-    static const int NEQ = 4;
-    UserData data;
-    realtype t;
-    N_Vector y;
-    N_Vector re_y;
-    N_Vector ATOLS; 
-    realtype RTOL;
+  /* ODE problem stuff */
+  static const int NEQ = 4;
+  UserData data;
+  realtype t;
+  N_Vector y;
+  N_Vector re_y;
+  N_Vector ATOLS;
+  realtype RTOL;
 
-    /* constructor functions */
-    CvodeOdeSolver();
-        
-    int setup_ODE_solver(const double i_rtol, const double i_atols[NEQ],
-                      const double y_init[NEQ], const double t0);
+  /* constructor functions */
+  CvodeOdeSolver();
 
-    void init_userdata(const double w, const bool doThermo);
-    
-    void get_variables_b4tstep(double &p, double &temp, double &qv, 
-           double &qc, double &deltemp, double &delqv, double &delqc);
-	
-    int advance_solution(const double tout);
+  int setup_ODE_solver(const double i_rtol, const double i_atols[NEQ],
+                       const double y_init[NEQ], const double t0);
 
-    int reinitialise(const double tout, const double deltemp, 
-            const double delqv, const double delqc);
+  void init_userdata(const double w, const bool doThermo);
 
-    int check_retval(void *returnvalue, const char *funcname, int opt);
-    
-    int print_init_ODEdata(const int nout, const double t0,
-        const double t1, const double tstep);
+  void get_variables_b4tstep(double &p, double &temp, double &qv,
+                             double &qc, double &deltemp, double &delqv, double &delqc);
 
-    void destroy_cvode(); 
+  int advance_solution(const double tout);
+
+  int reinitialise(const double tout, const double deltemp,
+                   const double delqv, const double delqc);
+
+  int check_retval(void *returnvalue, const char *funcname, int opt);
+
+  int print_init_ODEdata(const int nout, const double t0,
+                         const double t1, const double tstep);
+
+  void destroy_cvode();
 };
 
-
-
-
-
-
-
-#endif //CVODE_ODESOLVER_HPP  
+#endif // CVODE_ODESOLVER_HPP
