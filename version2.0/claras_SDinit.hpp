@@ -34,10 +34,10 @@ const double P_INIT = 100000;    // initial pressure [Pa]
 const double relh_init = 60;     // initial relative humidity (%)
 const double qc_init = 0;        // initial liquid water content []
 
-/* droplet init params. First create superdroplet eps, r0
-and m_sol data using python "create_superdrop_init.py" */
+/* droplet init params. Note: Superdroplet inital eps, r0
+and m_sol data is made using python "createSDinitcsv.py" */
 const int NSUPERS = 8192; // max. no. distinct superdrop objects in array
-// const int NSUPERS        = 2;                           // max. no. distinct superdrop objects in array
+//const int NSUPERS = 2;
 const double DROPVOL = 1e6; // volume of parcel occupied by superdroplets [m^3]
 const double iRho_l = dlc::Rho_l;
 const double iRho_sol = dlc::Rho_sol;
@@ -45,16 +45,15 @@ const double iMr_sol = dlc::Mr_sol;
 const int iIONIC = dlc::IONIC;
 
 /* Model timestep parameters */
-const double COND_TSTEP = 1; // time between SD condensation events  = ceil(coll/cond)*min(coll,cond) [s]
-const double COLL_TSTEP = 1; // time between SD collision events = ceil(coll/cond)*min(coll,cond) [s]
-
-const int nout = 40;               // No. time points to evaluate (save data at)
+const double COND_TSTEP = 1;       // time between SD condensation events  = ceil(coll/cond)*min(coll,cond) [s]
+const double COLL_TSTEP = 1;       // time between SD collision events = ceil(coll/cond)*min(coll,cond) [s]
+const int nout = 40;               // No. time points to write output data at
 const double TSPAN[2] = {0, 4000}; // time span of integration [s]
 
 /* CVODE ODE solver paramters */
 const double iW = 0.5;                            // vertical parcel speed [m/s] (dP/dt ~ w*dP/dz)
 const double rtol = 1e-6;                         // relative tolerance (tol) for integration
-const double atols[4] = {1e-6, 1e-6, 1e-6, 1e-6}; // absolute tols for thermodynamics [P, T, qv, qc]
+const double atols[4] = {1e-6, 1e-6, 1e-6, 1e-6}; // absolute tolerances for kinetics [P, T, qv, qc]
 
 }
 

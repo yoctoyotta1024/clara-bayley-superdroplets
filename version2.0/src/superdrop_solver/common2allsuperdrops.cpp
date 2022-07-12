@@ -7,7 +7,7 @@ of superdrop class */
 #include "common2allsuperdrops.hpp"
 
 Common2AllSuperdrops::Common2AllSuperdrops(double rho_l,
-                                           double rho_sol, double mr_sol, double ionic)
+           double rho_sol, double mr_sol, double ionic)
 /* constructor function called everytime
     instance of class is created */
 {
@@ -15,7 +15,7 @@ Common2AllSuperdrops::Common2AllSuperdrops(double rho_l,
 };
 
 void Common2AllSuperdrops::setPrivates(double aRho_l,
-                                       double aRho_sol, double aMr_sol, double aIonic)
+         double aRho_sol, double aMr_sol, double aIonic)
 /* Combined Setter functions to set private attributes */
 {
     rho_l = aRho_l;

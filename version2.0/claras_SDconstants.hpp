@@ -6,11 +6,14 @@ SDM and/or CVODE ODE solver */
 #ifndef CLARAS_SDCONSTANTS_HPP
 #define CLARAS_SDCONSTANTS_HPP
 
-/* Constants used in Superdrops Model NOTE: Any
-variation in below quantities are ignored
-(e.g. temperature depedences) */
+/* All CAPITALS indicates constants have dimensions
+(or are naturally dimensionless as for IONIC).
+Only first letter capitalised indicates value 
+is dimensionless (version of) constant */
+
 namespace dimmed_constants
-/* namespace containing values of constants with dimensions */
+/* namespace containing values of 
+constants with dimensions */
 {
   const double G = 9.80665;                   // acceleration due to gravity [m/s^2]
   const double RGAS_UNIV = 8.314462618;       // universal molar gas constant [J/Kg/K]
@@ -38,11 +41,12 @@ namespace dimmed_constants
 
 namespace dimless_constants
 {
-  /* characterstic time, velocity, temperate etc.
-  scales used to make ODEs dimensionless constants
-  with all CAPITALS constants have dimensions */
+  /* dimensionless constants made using
+  characterstic time, velocity, temperature etc.
+  scales (TIME0, TEMP0, P0 etc.) */
   namespace DC = dimmed_constants;
 
+  /* characterstic scales */ 
   const double W0 = 0.5;                           // characteristic velocity [m/s]
   const double TIME0 = 4000;                       // timescale [s]
   const double P0 = 100000;                        // pressure [Pa]
@@ -55,9 +59,7 @@ namespace dimless_constants
   // const double VOL0       = 1e6;                         // parcel volume scale [m^3]
   const double F0 = TIME0 / (RHO0 * R0 * R0); // droplet condensation-diffusion factors []
 
-  /* de-dimensionalise constants for ODEs
-  constants with only First letter capitalised
-  are dimensionless */
+  /* dimensionaless constants */
   const double Mr_ratio = DC::MR_WATER / DC::MR_DRY;
   const double Cp_dry = DC::CP_DRY / CP0;
   const double Cp_v = DC::CP_V / CP0;

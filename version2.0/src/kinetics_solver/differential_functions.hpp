@@ -29,7 +29,7 @@ typedef struct
 
 int odes_func(realtype t, N_Vector y, N_Vector ydot, void *user_data);
 /* Simple function f(t,y, ydot) called by ODE solver to
-  solve differential equations over time. */
+  integrate ODEs over time. */
 
 static double dp_dt(const double &t, const double &w);
 /* dp/dt differential equation (dimensionless)

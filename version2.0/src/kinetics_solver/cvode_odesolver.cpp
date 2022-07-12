@@ -7,8 +7,9 @@ functionality for the evolution of the kinetics
 #include "cvode_odesolver.hpp"
 
 CvodeOdeSolver::CvodeOdeSolver()
+/* construct instance of CVODE ODE solver with
+initialised NULL vectors, matrix and solver */
 {
-  /* initialise vectors, matrix and solver */
   data = (UserData)malloc(sizeof *data);
   y = NULL;
   ATOLS = NULL;
@@ -17,31 +18,19 @@ CvodeOdeSolver::CvodeOdeSolver()
   cvode_mem = NULL;
 }
 
-void CvodeOdeSolver::init_userdata(const double w, const bool doThermo)
+void CvodeOdeSolver::init_userdata(const double w,
+                                   const bool doThermo)
+/* set values in UserData structure for odes_func */                                
 {
   data->w = w;
   data->doThermo = doThermo;
 };
 
-void CvodeOdeSolver::get_variables_b4tstep(double &p,
-                                           double &temp, double &qv, double &qc,
-                                           double &deltemp, double &delqv, double &delqc)
-/* assigns kinematic variables (p, temp, qv, qc)
-from CVODE ODE sovler at start of given timestep of SDM.
-Also resets deltas=0 (for start of timestep) */
-{
-  p = NV_Ith_S(y, 0);
-  temp = NV_Ith_S(y, 1);
-  qv = NV_Ith_S(y, 2);
-  qc = NV_Ith_S(y, 3);
-
-  deltemp = 0;
-  delqv = 0;
-  delqc = 0;
-};
-
-int CvodeOdeSolver::setup_ODE_solver(const double i_rtol, const double i_atols[NEQ],
-                                     const double y_init[NEQ], const double t0)
+int CvodeOdeSolver::setup_ODE_solver(const double i_rtol, 
+          const double i_atols[NEQ], const double y_init[NEQ], 
+          const double t0)
+/* function does all the setup steps in order 
+to use CVODE sundials ODE solver */
 {
 
   /* 0. Create the SUNDIALS context */
@@ -51,8 +40,8 @@ int CvodeOdeSolver::setup_ODE_solver(const double i_rtol, const double i_atols[N
     retval = 1;
   }
 
-  /*  1. Initialize parallel or multi-threaded environment, if appropriate. */
-  // ---------------------------------------------------------------------- //
+  /*  1. Initialize parallel or multi-threaded environment */
+  // ------------------- (optional) --------------------- //
 
   /* 2. Set the scalar relative and vector absolute tolerances */
   RTOL = i_rtol;
@@ -117,6 +106,23 @@ int CvodeOdeSolver::setup_ODE_solver(const double i_rtol, const double i_atols[N
   return 0;
 };
 
+void CvodeOdeSolver::get_variables_b4tstep(double &p,
+                                           double &temp, double &qv, double &qc,
+                                           double &deltemp, double &delqv, double &delqc)
+/* assigns kinematic variables (p, temp, qv, qc)
+from CVODE ODE sovler at start of given timestep of SDM.
+Also resets deltas=0 (for start of timestep) */
+{
+  p = NV_Ith_S(y, 0);
+  temp = NV_Ith_S(y, 1);
+  qv = NV_Ith_S(y, 2);
+  qc = NV_Ith_S(y, 3);
+
+  deltemp = 0.0;
+  delqv = 0.0;
+  delqc = 0.0;
+};
+
 int CvodeOdeSolver::advance_solution(const double tout)
 /* Advance ODE solution in time */
 {
@@ -124,22 +130,18 @@ int CvodeOdeSolver::advance_solution(const double tout)
   retval = CVode(cvode_mem, tout, y, &t, CV_NORMAL);
   if (check_retval(&retval, "CVode", 1))
     return 1;
-  // cout << "t of ODE SOLVER -> " << tout << endl;
 
   return 0;
 }
 
 int CvodeOdeSolver::reinitialise(const double tout,
-                                 const double deltemp, const double delqv, const double delqc)
+                  const double deltemp, const double delqv, 
+                  const double delqc)
 /* Reinitialize the solver after discontinuous change in
   temp, qv and qc due to condensation */
 {
   re_y = NULL;
   re_y = N_VNew_Serial(NEQ, sunctx);
-
-  // cout << "temp " << deltemp << " " << NV_Ith_S(y, 1) << endl;
-  // cout << "qv " << delqv << " " <<  NV_Ith_S(y, 2) << endl;
-  // cout << "qc " << delqc << " " << NV_Ith_S(y, 3) << endl;
 
   NV_Ith_S(re_y, 0) = NV_Ith_S(y, 0);
   NV_Ith_S(re_y, 1) = NV_Ith_S(y, 1) + deltemp;
@@ -153,15 +155,14 @@ int CvodeOdeSolver::reinitialise(const double tout,
   return retval;
 }
 
-/*
- * Check function return value...
- *   opt == 0 means SUNDIALS function allocates memory so check if
- *            returned NULL pointer
- *   opt == 1 means SUNDIALS function returns an integer value so check if
- *            retval < 0
- *   opt == 2 means function allocates memory so check if returned
- *            NULL pointer
- */
+/* Check function return value...
+  opt == 0 means SUNDIALS function allocates memory so check if
+           returned NULL pointer
+  opt == 1 means SUNDIALS function returns an integer value so check if
+           retval < 0
+  opt == 2 means function allocates memory so check if returned
+           NULL pointer
+*/
 int CvodeOdeSolver::check_retval(void *returnvalue, const char *funcname, int opt)
 {
   int *retval;
@@ -199,6 +200,7 @@ int CvodeOdeSolver::check_retval(void *returnvalue, const char *funcname, int op
 
 int CvodeOdeSolver::print_init_ODEdata(const int nout, const double t0,
                                        const double t1, const double tstep)
+/* print initial ODE setup to the terminal screen */
 {
 
   if (y == NULL)

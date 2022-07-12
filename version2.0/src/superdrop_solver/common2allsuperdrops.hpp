@@ -13,9 +13,9 @@ class Common2AllSuperdrops
 
 {
 private:
-    double rho_l;   // density of liquid in droplets [Kg/m^3]
-    double rho_sol; // density of solute in droplets [Kg/m^3]
-    double mr_sol;  // Mr of solute [g/mol]
+    double rho_l;   // (dimensionless) density of liquid in droplets
+    double rho_sol; // (dimensionless) density of solute in droplets
+    double mr_sol;  // (dimensionless) Mr of solute
     double ionic;   // degree ionic dissociation (van't Hoff factor)
 
 public:

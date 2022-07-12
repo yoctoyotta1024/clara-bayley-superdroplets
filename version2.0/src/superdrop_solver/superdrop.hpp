@@ -1,6 +1,9 @@
 // Author: Clara Bayley
 // File: superdrops.hpp
-/* Header file for superdrops class */
+/* Header file for superdrops class. Equations
+   referenced as (eqn [X.YY]) are from "An Introduction
+   To Clouds From The Microscale to Climate" by
+   Lohmann, Luond and Mahrt, 1st edition. */
 
 #ifndef SUPERDROP_HPP
 #define SUPERDROP_HPP
@@ -32,17 +35,18 @@ public:
   Superdrop(){};
   /* completely empty constructor function */
 
-  Superdrop(double aRho_l, double aRho_sol,
-            double aMr_sol, double aIonic) : Common2AllSuperdrops(aRho_l, aRho_sol,
-                                                                  aMr_sol, aIonic) {}
+  Superdrop(double aRho_l, double aRho_sol, double aMr_sol,
+            double aIonic) : Common2AllSuperdrops(aRho_l, aRho_sol,
+                                                  aMr_sol, aIonic) {}
   /* constructor function with parent initialised */
 
-  Superdrop(double aEps, double aR, double aM_sol, double aRho_l, double aRho_sol,
+  Superdrop(double aEps, double aR, double aM_sol,
+            double aRho_l, double aRho_sol,
             double aMr_sol, double aIonic);
   /* constructor function with parent and instance initialised */
 
   void setSuperdropInitials(double aEps, double aR, double aM_sol);
-  /* Combined Setter functions to set private attributes */
+  /* combined setter functions to set private attributes */
 
   double getR0() { return r0; }
 
@@ -55,12 +59,12 @@ public:
   //   so mass_droplet = m = 4/3*pi*r^3 * rhoeff */
 
   double dry_r();
-  /* calculate radius of dry droplet, ie.
-  radius if it was entirely made of solute */
+  /* calculate radius as if dry droplet, ie.
+    radius if drop was entirely made of solute */
 
   double mass();
   /* calculate total mass of droplet
-        mass = (water + dry areosol)  */
+    mass = (water + dry areosol)  */
 
   double vol();
   /* volume of droplet */
@@ -69,32 +73,33 @@ public:
   //   /* mass of only water in droplet */
 
   double akohler_factor(double temp);
-  /* calculate a in raoult factor (exp^(a/r)) to
-  account for effect of dissolved solute
-  on radial growth of droplet. Using eq.6.24
-  and eq.6.22 of lohmann, luond
-  and mahrt intro 2 clouds textbook */
+  /* calculate value of a in raoult factor (exp^(a/r)) 
+    to account for effect of dissolved solute
+    on radial growth of droplet. Using equations from
+    "An Introduction To Clouds...." (see note at top of file) */
 
   double bkohler_factor();
-  /* calculate b in kelvin factor (1-b/r^3)
-  to account for curvature on radial growth
-  of droplet. Using eq.6.24 and eq.6.22 of lohmann,
-  luond and mahrt intro 2 clouds textbook */
+  /* calculate value of b in kelvin factor (1-b/r^3)
+    to account for curvature on radial growth
+    of droplet. Using equations from "An Introduction 
+    To Clouds...." (see note at top of file) */
 
   void diffusion_factors(double &fkl, double &fdl,
-                         const double &p, const double &temp, const double &psat);
+                         const double &p, const double &temp, 
+                         const double &psat);
   /* Calculate dimensionless Fkl and Fdl
-  * heat and vapour diffusion factors in
-  equation for radial growth of droplets
-  according to eq.7.27 lohmann, luond and
-  mahrt intro 2 clouds textbook
-  */
+    heat and vapour diffusion factors in
+    equation for radial growth of droplets
+    according to equations from "An Introduction 
+    To Clouds...." (see note at top of file) */
 
   double condensation_growth(const double &p, const double &temp,
-                             const double &psat, const double &s_ratio, const double &delt);
-  /* radial growth/shrink of each superdroplet due to
-  condensation and diffusion of water vapour.
-  [eq.7.27 lohmann intro 2 clouds] */
+                             const double &psat, const double &s_ratio,
+                            const double &delt);
+/* radial growth/shrink of each superdroplet due to
+	condensation and diffusion of water vapour
+	according to equations from "An Introduction 
+	To Clouds...." (see note at top of file) */
 };
 
 #endif // SUPERDROP_HPP

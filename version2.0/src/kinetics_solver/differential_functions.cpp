@@ -8,7 +8,7 @@
 
 int odes_func(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 /* Simple function f(t,y, ydot) called by ODE solver to
-  solve differential equations over time. */
+  integrate ODEs over time. */
 {
 
   UserData data = (UserData)user_data;
@@ -31,15 +31,15 @@ static double dp_dt(const double &t, const double &w)
 {
   double pdot, profile;
 
-  static const double dp_dt_const = dlc::W0 * dlc::TIME0 * DC::G / (DC::RGAS_DRY * dlc::TEMP0);
-  static const double lpsrate = 0.0062 / dlc::TEMP0 * dlc::W0 * dlc::TIME0;
-  static const double tempg = 273.15 / dlc::TEMP0;
-  static const double pg = 100000.0 / dlc::P0;
-  static const double zg = 0.0 / (dlc::W0 * dlc::TIME0);
-  static const double gamma = DC::G / (DC::RGAS_DRY * 0.0062) - 1;
+  static const double dp_dt_const = dlc::W0 * dlc::TIME0 * DC::G / (DC::RGAS_DRY * dlc::TEMP0); 
+  static const double zg = 0.0 / (dlc::W0 * dlc::TIME0);                    // dimensionless z value at ground level
+  static const double lpsrate = 0.0062 / dlc::TEMP0 * dlc::W0 * dlc::TIME0; // dimensionless moist adiabatic lapse rate
+  static const double tempg = 273.15 / dlc::TEMP0;                          // dimensionless temperature at zg
+  static const double pg = 100000.0 / dlc::P0;                              // dimensionless pressure at zg
+  static const double gamma = DC::G / (DC::RGAS_DRY * 0.0062) - 1.0;        // constant in dry adiabatic expansion
 
-  profile = 1 - lpsrate / tempg * (w * t - zg);
-  profile = pow(profile, gamma);
+  profile = 1.0 - lpsrate / tempg * (w * t - zg); // characteristic function for pressure profile as
+  profile = pow(profile, gamma);                  //      a funciton of time (ie. height via z=w*t)
 
   pdot = -dp_dt_const * pg / tempg * profile;
 
@@ -71,7 +71,7 @@ static double dtemp_dt_adia(const double &pdot, const N_Vector &y)
 
   rho_d = dlc::Mr_ratio / (dlc::Mr_ratio + qv) * p / temp; // density of dry parcel (p_dry/temp)
 
-  cp_m = cp_moist(qv, qc);
+  cp_m = cp_moist(qv, qc); // moist specific heat capacity
 
   tempdot = dlc::Rgas_dry / (rho_d * cp_m) * pdot;
 

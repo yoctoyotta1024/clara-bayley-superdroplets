@@ -17,13 +17,13 @@ void print_output(const double t, const double p,
 }
 
 void initialise_Superdrop_instances(const string FNAME,
-                                    Superdrop (&superdrops_arr)[init::NSUPERS], const int nsupers)
+            Superdrop (&superdrops_arr)[init::NSUPERS], const int nsupers)
 {
   /* read CSV file for eps, r and m_sol then create
          instances of Superdroplet class */
 
   double eps, r, m_sol;
-  double arr[3] = {0, 0, 0};
+  double arr[3] = {0.0, 0.0, 0.0};
   eps = arr[0];
   r = arr[1];
   m_sol = arr[2];

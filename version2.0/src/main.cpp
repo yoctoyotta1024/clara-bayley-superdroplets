@@ -2,20 +2,23 @@
 // File: mainSDM.cpp
 /* This file runs the entire superdrop model (SDM)
 coupled with a CVODE ode solver for the kinetics
-(p, temp, qv and qc) over time*/
+(p, temp, qv and qc) over time */
 
 #include <iostream>
 #include <math.h>
 
+/* coupled model parameter & input files */
 #include "../claras_SDinit.hpp"
 #include "../claras_SDconstants.hpp"
 
+/* Superdroplet Model (SDM) files */
 #include "./superdrop_solver/common2allsuperdrops.hpp"
 #include "./superdrop_solver/superdrop.hpp"
 #include "./superdrop_solver/readwritefuncs4SDM.hpp"
 #include "./superdrop_solver/collisions4SDM.hpp"
 #include "./superdrop_solver/condensationgrowth4SDM.hpp"
 
+/* CVODE ODE kinetics solver files */
 #include "./kinetics_solver/cvode_odesolver.hpp"
 #include "./kinetics_solver/differential_functions.hpp"
 
@@ -53,11 +56,11 @@ int main()
   const double p_init = init::P_INIT / dlc::P0; // initial (dimensionless) kinetics
   const double temp_init = init::TEMP_INIT / dlc::TEMP0;
   const double pv_i = saturation_pressure(temp_init) * init::relh_init / 100;
-  const double qv_init = pv2qv(pv_i, p_init); // initial qv for solver
+  const double qv_init = pv2qv(pv_i, p_init);    // initial qv for solver
   const double qc_init = init::qc_init;
 
   /* Initialise Superdroplets using initdrops_csv file */
-  for (int i = 0; i < nsupers; i++) // for loop over all superdroplets
+  for (int i = 0; i < nsupers; i++)
   {
     superdrops_arr[i] = Superdrop(init::iRho_l,
                                   init::iRho_sol, init::iMr_sol, init::iIONIC);
@@ -65,7 +68,7 @@ int main()
   initialise_Superdrop_instances(init::initdrops_csv,
                                  superdrops_arr, nsupers);
 
-  /* Get nhalf, scale_p and pvec (index list) given constant no. of nsupers */
+  /* Get nhalf and pvec (list of indicies) given constant no. of nsupers */
   const int nhalf = floor(nsupers / 2.0);
   vector<int> pvec(nsupers);
   for (int i = 0; i < nsupers; i++)
@@ -80,14 +83,14 @@ int main()
   cvode.setup_ODE_solver(init::rtol, init::atols, y_init, t0);
   cvode.print_init_ODEdata(nout, t0, ceil(ItersPerTstep) * min_tstep, tstep);
 
-  /* assign variables from CVODE ODE solver to SDM kinematic variables */
+  /* copy kinematic variables from CVODE ODE solver to SDM */
   double &t = cvode.t;
   cvode.get_variables_b4tstep(p, temp, qv, qc, deltemp, delqv, delqc);
 
-  /* Write Setup (claras_SDinit.hpp and claras_SDconstants.hpp) to .txt file */
+  /* write setup to .txt file */
   WriteSetup2Txt(setupfiles, init::setup_txt);
 
-  /* write header to .csv files and open in preparation for writing data */
+  /* write header and initial data to .csv files */
   write_outputheader(init::solution_csv);
   write_superdrop_outputheader(init::solutionSD_csv);
   yfile.open(init::solution_csv, ios::app);
@@ -95,76 +98,68 @@ int main()
   write_output(yfile, t, p, temp, qv, qc);
   write_superdrop_output(sdfile, superdrops_arr, nsupers);
 
-  /* run superdroplet model (SDM) coupled to
-    CVODE ODE SOLVER for kinematics (collecting data
-    nout no. of times within init::TSPAN) */
+  /* *** run superdroplet model (SDM) coupled to
+    CVODE ODE SOLVER for kinematics. Writing output
+    data nout no. of times within init::TSPAN) *** */
   tout = t0 + ceil(ItersPerTstep) * min_tstep; // first output time of ODE solver
   dt_cond = 0;
   dt_coll = 0;
   for (int j = 0; j < nout; j++)
   {
-
-    /* SDM kinematic variables at timestep */
-    // cout << " -- t of SDM: " << t << endl;
-    print_output(t, p, temp, qv, qc);
+    print_output(t, p, temp, qv, qc); // print variables at timestep t
 
     /* SECTION 1: run SUPERDROPLET model */
-    /* (a) divide each tstep into ItersPerTstep no. of
-      min_tsteps and model SD collisions and/or condensational growth */
+    /* (a) divide each tstep into ItersPerTstep no. of min_tsteps and
+      model SD collisions and/or condensational growth for each min_tstep */
     delta_t = 0;
-    for (int k = 0; k < ceil(ItersPerTstep); k++) // increment time for SDs simulation
+    for (int k = 0; k < ceil(ItersPerTstep); k++) // increment time of SDM
     {
       delta_t += min_tstep;
       dt_cond += min_tstep; // change in time since last condensation event
       dt_coll += min_tstep; // change in time since last collision event
 
-      /* (b) Superdroplet Condensation-Diffusion Growth */
+      /* (b) model superdroplet condensation-diffusion growth */
       if (init::doCond)
       {
         if (dt_cond >= cond_tstep)
         {
-          // cout << "cond @ " << t+delta_t << endl;
           condensation_onto_superdroplets(cond_tstep, p, temp, qv, qc,
                                           deltemp, delqv, delqc, superdrops_arr, nsupers);
-          dt_cond = 0;
+          dt_cond = 0; //reset time since last condensation event
         }
       }
 
-      /* (c) Superdroplet Collisions */
+      /* (c) model superdroplet collisions */
       if (init::doColl)
       {
         if (dt_coll >= coll_tstep)
         {
-          // cout << "coll @ " << t+delta_t << endl;
           collide_droplets(nsupers, nhalf, pvec, superdrops_arr);
-          dt_coll = 0;
+          dt_coll = 0; //reset time since last collision event
         }
       }
     }
 
-    /* SECTION 2: run CVODE ODE solver */
+    /* SECTION 2: run timestep of CVODE ODE solver */
     cvode_iterfail = cvode.advance_solution(tout);
     if (cvode_iterfail)
     {
       break;
     }
 
-    /* reinitialise solver with changes to
-      temp, qv qnd qc due to condensation */
+    /* reinitialise solver with changes to temp
+      qv and qc due to SDM condensation */
     if (init::doCond)
     {
       cvode_iterfail = cvode.reinitialise(tout, deltemp, delqv, delqc);
     }
 
-    /* SECTION 3: write data and proceed to next time step */
+    /* SECTION 3: write output data and proceed to next time step */
     cvode.get_variables_b4tstep(p, temp, qv, qc, deltemp, delqv, delqc);
     write_superdrop_output(sdfile, superdrops_arr, nsupers);
     write_output(yfile, t, p, temp, qv, qc);
 
-    if (cvode_iterfail)
-    {
-      break;
-    }
+    if (cvode_iterfail) { break; }
     tout += delta_t;
   }
 
