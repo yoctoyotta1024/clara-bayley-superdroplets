@@ -78,7 +78,7 @@ int main(){
   {
     pvec[i] = i;
   }
-  
+
   /* setup CVODE ODE solver */
   CvodeOdeSolver cvode;
   cvode.init_userdata(w, init::doThermo);

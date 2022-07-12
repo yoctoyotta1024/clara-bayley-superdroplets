@@ -82,6 +82,14 @@ void condensation_onto_superdroplets(const double delt, double &p,
 					 														psat, s_ratio, delt);
 		delm = dmdt_const*pow(superdrops_arr[i].r,2.0)*epsdelr;                // dm/dt * delta t
     tot_delrhov += delm;                                                   // drho_condensed_vapour/dt * delta t
+    
+    // if (isnan(superdrops_arr[i].r) != true)
+    // {
+    // std::cout << deltemp_k << std::endl;
+    // std::cout << delqv_k << std::endl;
+    // std::cout << delqc_k << std::endl;
+    // }
+  
   }
   delqc_k = tot_delrhov/dlc::Rho_dry;                                      // change to temp, qv and qc as a result of 
   delqv_k =  -(delqc_k);                                                     //       condensation at kth small timestep
@@ -92,10 +100,18 @@ void condensation_onto_superdroplets(const double delt, double &p,
   qv += delqv_k;
   qc += delqc_k;
 
+
   /* cumulative changes from k=0 to k=k time step 
   (calculated for coupling to kinematics ODE solver) */
   delqc += deltemp_k; 
   delqv += delqv_k;
   deltemp += delqc_k;
+
+  // if (isnan(temp) != true)
+  // {
+  // std::cout << "temp " << deltemp << " " << temp << std::endl; 
+  // std::cout << "qv " << delqv << " " << qv << std::endl; 
+  // std::cout << "qc " << delqc << " " << qc << std::endl; 
+  // }
 
 }

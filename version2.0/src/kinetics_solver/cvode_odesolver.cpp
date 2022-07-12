@@ -142,6 +142,10 @@ int CvodeOdeSolver::reinitialise(const double tout,
   re_y = NULL;
   re_y = N_VNew_Serial(NEQ, sunctx);
 
+  // cout << "temp " << deltemp << " " << NV_Ith_S(y, 1) << endl; 
+  // cout << "qv " << delqv << " " <<  NV_Ith_S(y, 2) << endl; 
+  // cout << "qc " << delqc << " " << NV_Ith_S(y, 3) << endl; 
+
   NV_Ith_S(re_y, 0) = NV_Ith_S(y, 0);
   NV_Ith_S(re_y, 1) = NV_Ith_S(y, 1) + deltemp;
   NV_Ith_S(re_y, 2) = NV_Ith_S(y, 2) + delqv;
