@@ -201,3 +201,47 @@ void write_superdrop_output(ofstream &wfile,
 
 
 
+
+void WriteSetup2Txt(string reads[], const string setup_txt)
+/* open each file named in reads[] and copy text 
+  line by line into setup_txt file */
+{
+
+  ifstream initfile;
+  ofstream wfile;
+  string header, line;
+  string breakheader = "// ----------------------------- //\n";
+
+  wfile.open(setup_txt, ios::trunc);
+  wfile.close();
+
+
+  int n = 0;
+  while (!reads[n].empty())
+  {
+    wfile.open(setup_txt, ios::app);
+    initfile.open(reads[n]);
+    
+    cout << n << " writing " << reads[n] << " to setup_txt file"<<endl;
+
+    wfile << breakheader;
+    header = "// --------- "+reads[n]+" --------- //\n";
+    wfile << header;
+    wfile << breakheader;
+
+    while(getline(initfile, line))
+    {  /* read file line by line */
+    
+      /* output lines to .txt file on disk */
+      wfile << line << endl;
+    }
+
+    wfile << breakheader << "\n\n\n";
+
+    initfile.close();
+    wfile.close();
+
+    n++;
+  }
+
+}

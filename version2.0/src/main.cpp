@@ -29,8 +29,12 @@ namespace dlc = dimless_constants;
 
 int main(){
   
-  /* variables for time-stepping model */
+  /* files to write output data to */
   ofstream yfile, sdfile;                                       // files to write superdroplet and ODE output data to
+  string setupfiles[] = {"../claras_SDinit.hpp", 
+                        "../claras_SDconstants.hpp"};              // files to copy to setup_txt file
+  
+  /* variables for time-stepping model */
   int cvode_iterfail;                                           // flag to break integration if cvode fails
   const int nout = init::nout;                                  // number of output times
   const double t0 = init::TSPAN[0]/dlc::TIME0;                  // initial time (dimensionless)          
@@ -86,6 +90,9 @@ int main(){
   double &t = cvode.t;
   cvode.get_variables_b4tstep(p, temp, qv, qc, deltemp, delqv, delqc);
 
+  /* Write Setup (claras_SDinit.hpp and claras_SDconstants.hpp) to .txt file */ 
+  WriteSetup2Txt(setupfiles, init::setup_txt);
+  
   /* write header to .csv files and open in preparation for writing data */ 
   write_outputheader(init::solution_csv);
   write_superdrop_outputheader(init::solutionSD_csv); 
@@ -106,7 +113,6 @@ int main(){
 
     /* SDM kinematic variables at timestep */
     // cout << " -- t of SDM: " << t << endl;
-    cvode.get_variables_b4tstep(p, temp, qv, qc, deltemp, delqv, delqc);
     print_output(t, p, temp, qv, qc);
     
     /* SECTION 1: run SUPERDROPLET model */
@@ -148,25 +154,21 @@ int main(){
     cvode_iterfail = cvode.advance_solution(tout);
     if(cvode_iterfail){ break; }
     
-    /* Continute to next timestep */ 
-    // if(init::doCond)
-    // {
-    //   yvec[1] += deltemp;
-    //   yvec[2] += delqv;
-    //   yvec[3] += delqc; 
-
-    //   cvode_iterfail = cvode.reinitialise(tout, y);
-    // }
+    /* reinitialise solver with changes to
+      temp, qv qnd qc due to condensation */ 
+    if(init::doCond)
+    {
+      cvode_iterfail = cvode.reinitialise(tout, deltemp, delqv, delqc);
+    }
 
 
     /* SECTION 3: write data and proceed to next time step */
-    if(cvode_iterfail){ break; }
-    tout += delta_t;
-
-    /* Output solution and error after every large timestep */
+    cvode.get_variables_b4tstep(p, temp, qv, qc, deltemp, delqv, delqc);
     write_superdrop_output(sdfile, superdrops_arr, nsupers);
     write_output(yfile, t, p, temp, qv, qc);
 
+    if(cvode_iterfail){ break; }
+    tout += delta_t;
 
   }
 

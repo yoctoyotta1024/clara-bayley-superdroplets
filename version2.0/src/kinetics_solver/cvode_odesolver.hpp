@@ -40,6 +40,7 @@ class CvodeOdeSolver
     UserData data;
     realtype t;
     N_Vector y;
+    N_Vector re_y;
     N_Vector ATOLS; 
     realtype RTOL;
 
@@ -56,7 +57,8 @@ class CvodeOdeSolver
 	
     int advance_solution(const double tout);
 
-    int reinitialise(const double tout, const double re_y[NEQ]);
+    int reinitialise(const double tout, const double deltemp, 
+            const double delqv, const double delqc);
 
     int check_retval(void *returnvalue, const char *funcname, int opt);
     

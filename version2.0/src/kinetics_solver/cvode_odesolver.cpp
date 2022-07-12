@@ -134,14 +134,24 @@ int CvodeOdeSolver::advance_solution(const double tout)
 
 
 
-// int CvodeOdeSolver::reinitialise(const double tout, const double re_y[NEQ])
-// /* Reinitialize the solver after discontinuous change in y */
-// {
-//   retval = CVodeReInit(cvode_mem, tout, re_y);
-//   if (check_retval((void *)&retval, "CVodeReInit", 1)) return(1);
+int CvodeOdeSolver::reinitialise(const double tout, 
+    const double deltemp, const double delqv, const double delqc)
+/* Reinitialize the solver after discontinuous change in
+  temp, qv and qc due to condensation */
+{
+  re_y = NULL;
+  re_y = N_VNew_Serial(NEQ, sunctx);
 
-//   return 0;
-// }
+  NV_Ith_S(re_y, 0) = NV_Ith_S(y, 0);
+  NV_Ith_S(re_y, 1) = NV_Ith_S(y, 1) + deltemp;
+  NV_Ith_S(re_y, 2) = NV_Ith_S(y, 2) + delqv;
+  NV_Ith_S(re_y, 3) = NV_Ith_S(y, 3) + delqc;
+
+  retval = CVodeReInit(cvode_mem, tout, re_y);
+  if (check_retval((void *)&retval, "CVodeReInit", 1)) return(1);
+  
+  return retval;
+}
 
 
 

@@ -54,7 +54,9 @@ void write_superdrop_output(ofstream &wfile,
 /* Create new .csv file with header for writing superdroplet data to */
 
 
-
+void WriteSetup2Txt(string reads[], const string setup_txt);
+/* open each file named in reads[] and copy text 
+  line by line into setup_txt file */
 
 
 
