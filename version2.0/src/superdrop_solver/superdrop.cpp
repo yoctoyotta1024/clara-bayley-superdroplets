@@ -115,15 +115,32 @@ void Superdrop::diffusion_factors(double &fkl, double &fdl,
 	fdl = Temp / (Diffuse_v * Psat) / dlc::F0;
 }
 
-double Superdrop::condensation_growth(const double &p,
-										const double &temp, const double &psat,
-										const double &s_ratio, const double &delt)
-/* radial growth/shrink of each superdroplet due to
-	condensation and diffusion of water vapour
-	according to equations from "An Introduction 
+double Superdrop::condensation_ode(const double &s_ratio,
+																	 const double &a, const double &b,
+																	 const double &fkl, const double &fdl,
+																	 const double &radius)
+/* dr/dt ODE for radial growth/shrink
+	of each superdroplet due to	condensation and
+	diffusion of water vapour according to
+	equations from "An Introduction To
+	Clouds...." (see note at top of file) */
+{
+	double dr_dt = (s_ratio - 1.0 - a / radius + b / pow(radius, 3.0)) 
+											/ (dlc::Rho_l * (fkl + fdl) * radius); // (eqn [7.28])
+
+	// double dr_dt = (s_ratio-1) / (dlc::Rho_l * (fkl+fdl) * radius); // (eqn [7.27])
+
+	return dr_dt;
+}
+
+double Superdrop::runge_kutta_condensation_growth(const double &p,
+															const double &temp, const double &psat,
+															const double &s_ratio, const double &delt)
+/* 4th order runge kutta method for radial growth/shrink of 
+	each superdroplet due to condensation and diffusion of water 
+	vapour according to equations from "An Introduction 
 	To Clouds...." (see note at top of file) */
 {
-
 	double fkl, fdl, delr;
 	const double a = akohler_factor(temp);
 	const double b = bkohler_factor();
@@ -132,9 +149,17 @@ double Superdrop::condensation_growth(const double &p,
 	fdl = 0.0;
 	diffusion_factors(fkl, fdl, p, temp, psat);
 
-	delr = (s_ratio - 1.0 - a / r + b / pow(r, 3.0)) 
-					/ (dlc::Rho_l * (fkl + fdl) * r) * delt; // (eqn [7.28]) 
-	// delr = (s_ratio-1) / (dlc::Rho_l * (fkl+fdl) * r) * delt; // (eqn [7.27]) 
+	/* 4th order runge kutta method to obtain delr */
+	const double a14 = 6.0;
+	const double a23 = 3.0;
+	double k1, k2, k3, k4;
+
+	k1 = condensation_ode(s_ratio, a, b, fkl, fdl, r) * delt;
+	k2 = condensation_ode(s_ratio, a, b, fkl, fdl, r + k1 / 2.0) * delt;
+	k3 = condensation_ode(s_ratio, a, b, fkl, fdl, r + k2 / 2.0) * delt;
+	k4 = condensation_ode(s_ratio, a, b, fkl, fdl, r + k3) * delt;
+
+	delr = (k1 + k4) / a14 + (k2 + k3) / a23;
 
 	/*  if droplets are dry, do not shrink further */
 	if (r <= dry_r() && delr <= 0.0)
@@ -146,3 +171,37 @@ double Superdrop::condensation_growth(const double &p,
 
 	return eps * delr;
 }
+
+
+
+// double Superdrop::condensation_growth(const double &p,
+// 										const double &temp, const double &psat,
+// 										const double &s_ratio, const double &delt)
+// /* 1st order euler forward method for radial growth/shrink of 
+//   each superdroplet due to condensation and diffusion of water 
+//   vapour according to equations from "An Introduction 
+//   To Clouds...." (see note at top of file) */
+// {
+
+// 	double fkl, fdl, delr;
+// 	const double a = akohler_factor(temp);
+// 	const double b = bkohler_factor();
+
+// 	fkl = 0.0;
+// 	fdl = 0.0;
+// 	diffusion_factors(fkl, fdl, p, temp, psat);
+
+// 	delr = (s_ratio - 1.0 - a / r + b / pow(r, 3.0)) 
+// 					/ (dlc::Rho_l * (fkl + fdl) * r) * delt; // (eqn [7.28]) 
+// 	// delr = (s_ratio-1) / (dlc::Rho_l * (fkl+fdl) * r) * delt; // (eqn [7.27]) 
+
+// 	/*  if droplets are dry, do not shrink further */
+// 	if (r <= dry_r() && delr <= 0.0)
+// 	{
+// 		delr = 0.0;
+// 	}
+
+// 	r += delr;
+
+// 	return eps * delr;
+// }

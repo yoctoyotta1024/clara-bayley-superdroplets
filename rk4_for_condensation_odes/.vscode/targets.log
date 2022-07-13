@@ -6,11 +6,8 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 # PARTICULAR PURPOSE.
 
 # This program built for i386-apple-darwin11.3.0
- 
-make: *** No rule to make target `all'.  Stop.
 
-
-# Make data base, printed on Wed Jul 13 14:04:46 2022
+# Make data base, printed on Wed Jul 13 14:05:23 2022
 
 # Variables
 
@@ -25,7 +22,7 @@ make: *** No rule to make target `all'.  Stop.
 # automatic
 @F = $(notdir $@)
 # makefile
-CURDIR := /Users/yoctoyotta1024/Documents/spring2022/clara-bayley-superdroplets/version2.0
+CURDIR := /Users/yoctoyotta1024/Documents/spring2022/clara-bayley-superdroplets/rk4_for_condensation_odes
 # makefile
 SHELL = /bin/sh
 # environment
@@ -55,7 +52,10 @@ DISPLAY = /private/tmp/com.apple.launchd.hyn00dAB4P/org.xquartz:0
 # environment
 CONDA_EXE = /Users/yoctoyotta1024/opt/anaconda3/bin/conda
 # environment
-PWD = /Users/yoctoyotta1024/Documents/spring2022/clara-bayley-superdroplets/version2.0
+PWD = /Users/yoctoyotta1024/Documents/spring2022/clara-bayley-superdroplets/rk4_for_condensation_odes
+ 
+make: *** No rule to make target `all'.  Stop.
+
 # environment
 HOMEBREW_CELLAR = /opt/homebrew/Cellar
 # environment
@@ -167,9 +167,9 @@ LANG = C
 
 # Directories
 
-# . (device 16777230, inode 2669824): 17 files, no impossibilities.
+# . (device 16777230, inode 2836787): 13 files, no impossibilities.
 
-# 17 files, no impossibilities in 1 directories.
+# 13 files, no impossibilities in 1 directories.
 
 # Implicit Rules
 
@@ -241,6 +241,6 @@ GNUmakefile:
 # strcache size: total = 0 / max = 0 / min = 4096 / avg = 0
 # strcache free: total = 0 / max = 0 / min = 4096 / avg = 0
 
-# Finished Make data base on Wed Jul 13 14:04:46 2022
+# Finished Make data base on Wed Jul 13 14:05:23 2022
 
  

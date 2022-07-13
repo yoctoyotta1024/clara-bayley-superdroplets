@@ -20,6 +20,14 @@ int odes_func(realtype t, N_Vector y, N_Vector ydot, void *user_data)
     NV_Ith_S(ydot, 0) = pdot;
     NV_Ith_S(ydot, 1) = dtemp_dt_adia(pdot, y);
   }
+  else
+  {
+    NV_Ith_S(ydot, 0) = 0;
+    NV_Ith_S(ydot, 1) = 0;
+  }
+ 
+  NV_Ith_S(ydot, 2) = 0;
+  NV_Ith_S(ydot, 3) = 0;
 
   return 0;
 }

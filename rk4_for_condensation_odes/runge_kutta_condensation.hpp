@@ -1,12 +1,23 @@
 // Author: Clara Bayley
-// File: condensationgrowth4SDM.cpp
-/* Functionality for modelling condensation-
-   diffusional growth of superdroplets. Equations
-   referenced as (eqn [X.YY]) are from "An Introduction
-   To Clouds From The Microscale to Climate" by
-   Lohmann, Luond and Mahrt, 1st edition. */
+// File: runge_kutta_condensation.hpp
+/* methods for solving condensation-diffusion 
+growth equation for superdroplets using 
+runge kuuta 4th order method */
 
-#include "condensationgrowth4SDM.hpp"
+#ifndef RUNGE_KUTTA_CONDENSATION_HPP
+#define RUNGE_KUTTA_CONDENSATION_HPP
+
+
+#include <iostream>
+#include <math.h>
+
+#include "../version2.0/claras_SDinit.hpp"
+#include "../version2.0/claras_SDconstants.hpp"
+#include "../version2.0/src/superdrop_solver/common2allsuperdrops.hpp"
+#include "../version2.0/src/superdrop_solver/superdrop.hpp"
+
+// using namespace std;
+namespace dlc = dimless_constants;
 
 double pv2qv(const double pv, const double p)
 /* Calculate mass mixing ratio
@@ -47,7 +58,8 @@ double saturation_pressure(const double temp)
   return exp(lnpsat) / dlc::P0; // dimensionless psat
 }
 
-void condensation_onto_superdroplets(const double delt, double &p,
+
+void condensation_onto_superdroplets_RK4(const double delt, double &p,
               double &temp, double &qv, double qc, 
               double &deltemp, double &delqv, double &delqc, 
               Superdrop (&superdrops_arr)[init::NSUPERS], const int nsupers)
@@ -58,38 +70,19 @@ void condensation_onto_superdroplets(const double delt, double &p,
   Clouds...." (see note at top of file) */
 {
 
-  double deltemp_k, delqv_k, delqc_k;
-  double epsdelr, delm, psat, s_ratio;
-  double tot_delrhov = 0.0;
-  static const double eqnc = 4.0 * M_PI * dlc::Rho_l * pow(dlc::R0, 3.0);
-  static const double dmdt_const = eqnc / init::DROPVOL;
-
-  psat = saturation_pressure(temp);
-  s_ratio = (p * qv) / (dlc::Mr_ratio + (qv)*psat); // supersaturation ratio s = pv/psat
+  const double psat = saturation_pressure(temp);
+  const double s_ratio = (p * qv) / (dlc::Mr_ratio + (qv)*psat); // supersaturation ratio s = pv/psat
+  double epsdelr;
 
   /* superdroplet radii changes for timestep delt */
   for (int i = 0; i < nsupers; i++)
   {
-    epsdelr = superdrops_arr[i].runge_kutta_condensation_growth(p, temp,
-                                                    psat, s_ratio, delt);
-    delm = dmdt_const * pow(superdrops_arr[i].r, 2.0) * epsdelr; // dm/dt * delta t (eqn [7.22])
-    tot_delrhov += delm;                                         // drho_condensed_vapour/dt * delta t
-
+    epsdelr = superdrops_arr[i].runge_kutta_condensation_growth(p, temp, psat, s_ratio, delt); 
   }
   
-  delqc_k = tot_delrhov / dlc::Rho_dry; // change to temp, qv and qc as a result of
-  delqv_k = -(delqc_k);                 //    condensation at kth (small) timestep
-  deltemp_k = (dlc::Latent_v / cp_moist(qv, qc)) * (delqc_k);
-
-  /* update to temp, qv and qc given timestep delt */
-  temp += deltemp_k;
-  qv += delqv_k;
-  qc += delqc_k;
-
-  /* cumulative changes from k=0 to k=k time step
-  (calculated for coupling kinematics to CVODE ODE solver) */
-  deltemp += deltemp_k;
-  delqv += delqv_k;
-  delqc += delqc_k; 
-
 }
+
+
+
+
+#endif //RUNGE_KUTTA_CONDENSATION_HPP

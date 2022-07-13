@@ -12,7 +12,7 @@ plt.rcParams.update({'font.size': 14})
 INITDROPSCSV = "dimlessSDinit.csv"
 
 ### settings for creating distribution from lognormal in R space distribution
-use_lognormal    = False
+use_lognormal    = True
 if use_lognormal:
   rspan            = [1e-8, 1e-5]                  # initial range of droplet radii [m]
   # mus             = [0.075e-6]                     # [m] geometric mean droplet radius
@@ -24,7 +24,7 @@ if use_lognormal:
 
 
 ### settings for distirbution from exponential in droplet volume
-use_volexponential = True
+use_volexponential = False
 if use_volexponential:
   r_a             = 30.531e-6                   # [m] radius of peak to volume dist
   n_a             = 2**(23)                     # [m^-3] total no. concentration of real droplets          

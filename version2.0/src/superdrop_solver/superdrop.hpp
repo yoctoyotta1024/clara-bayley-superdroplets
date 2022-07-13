@@ -93,13 +93,31 @@ public:
     according to equations from "An Introduction 
     To Clouds...." (see note at top of file) */
 
-  double condensation_growth(const double &p, const double &temp,
-                             const double &psat, const double &s_ratio,
-                            const double &delt);
-/* radial growth/shrink of each superdroplet due to
-	condensation and diffusion of water vapour
-	according to equations from "An Introduction 
-	To Clouds...." (see note at top of file) */
+  double condensation_ode(const double &s_ratio,
+												const double &a, const double &b, 
+												const double &fkl, const double &fdl, 
+												const double &radius);
+  /* dr/dt ODE for radial growth/shrink
+    of each superdroplet due to	condensation and
+    diffusion of water vapour according to
+    equations from "An Introduction To
+    Clouds...." (see note at top of file) */              
+  
+  double runge_kutta_condensation_growth(const double &p,
+										const double &temp, const double &psat,
+										const double &s_ratio, const double &delt);
+  /* 4th order runge kutta method for radial growth/shrink of 
+    each superdroplet due to condensation and diffusion of water 
+    vapour according to equations from "An Introduction 
+    To Clouds...." (see note at top of file) */
+
+  // double condensation_growth(const double &p, const double &temp,
+  //                            const double &psat, const double &s_ratio,
+  //                           const double &delt);
+  // /* 1st order euler forward method for radial growth/shrink of
+  //   each superdroplet due to condensation and diffusion of water
+  //   vapour according to equations from "An Introduction
+  //   To Clouds...." (see note at top of file) */
 };
 
 #endif // SUPERDROP_HPP
