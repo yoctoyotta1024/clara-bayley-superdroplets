@@ -19,14 +19,14 @@ initialisation of model */
 
 /* filenames */
 const std::string setup_txt = "sol_setup.txt";
-const std::string initdrops_csv = "../dimlessSDinit.csv"; //.csv filename for initialisation of superdrops
+const std::string initdrops_csv = "dimlessSDinit.csv"; //.csv filename for initialisation of superdrops
 const std::string solutionSD_csv = "solSD.csv";           //.csv filename for initialisation of superdrops
 const std::string solution_csv = "sol.csv";               //.csv filename for initialisation of superdrops
 
 /* Model Settings */
 const bool doThermo = true; // enable condensational growth of superdroplets
 const bool doCond = true;    // enable condensational growth of superdroplets
-const bool doColl = false;   // enable collisions of superdroplets
+const bool doColl = true;   // enable collisions of superdroplets
 
 /* initial parcel conditions */
 const double TEMP_INIT = 273.15; // initial parcel temperature [T]
