@@ -20,12 +20,12 @@
 // using namespace std;
 namespace dlc = dimless_constants;
 
-double pv2qv(const double pv, const double p);
+double vapourpressure_2_massmixratio(const double pv, const double p);
 /* Calculate mass mixing ratio
    qv = m_v/m_dry = rho_v/rho_dry
    given vapour pressure pv = p_v/p_tot. */
 
-double cp_moist(const double qv, const double qc);
+double moist_specifc_heat(const double qv, const double qc);
 /* (dimensionless) specific heat capacity of
    moist parcel of air */
 

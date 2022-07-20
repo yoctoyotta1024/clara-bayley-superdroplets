@@ -59,7 +59,7 @@ int main()
   const double p_init = init::P_INIT / dlc::P0;
   const double temp_init = init::TEMP_INIT / dlc::TEMP0;
   const double vapourp_init = saturation_pressure(temp_init) * init::relh_init / 100; //initial vapour pressure for calculating qv_init
-  const double qv_init = pv2qv(vapourp_init, p_init);
+  const double qv_init = vapourpressure_2_massmixratio(vapourp_init, p_init);
   const double qc_init = init::qc_init;
 
   /* Initialise Superdroplets using initdrops_csv file */

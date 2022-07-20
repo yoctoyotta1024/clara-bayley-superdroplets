@@ -63,7 +63,7 @@ int main()
   const double p_init = init::P_INIT/dlc::P0;                 // initial (dimensionless) kinetics
   const double temp_init = init::TEMP_INIT/dlc::TEMP0;
   const double pv_i = saturation_pressure(temp_init)*init::relh_init/100;
-  const double qv_init = pv2qv(pv_i, p_init);                 //initial qv for solver
+  const double qv_init = vapourpressure_2_massmixratio(pv_i, p_init);                 //initial qv for solver
   const double qc_init = init::qc_init;
 
   double t = 0;    //!!!!!!!!!!@@@@@@@@@@@###########     

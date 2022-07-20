@@ -54,7 +54,7 @@ static double dp_dt(const double &t, const double &w)
   return pdot;
 }
 
-static double cp_moist(const double &qv, const double &qc)
+static double moist_specifc_heat(const double &qv, const double &qc)
 /* effective specific heat capacity of moist parcel
   of air (dry + water vapour + liquid water) */
 {
@@ -79,7 +79,7 @@ static double dtemp_dt_adia(const double &pdot, const N_Vector &y)
 
   rho_d = dlc::Mr_ratio / (dlc::Mr_ratio + qv) * p / temp; // density of dry parcel (p_dry/temp)
 
-  cp_m = cp_moist(qv, qc); // moist specific heat capacity
+  cp_m = moist_specifc_heat(qv, qc); // moist specific heat capacity
 
   tempdot = dlc::Rgas_dry / (rho_d * cp_m) * pdot;
 

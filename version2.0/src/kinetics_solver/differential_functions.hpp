@@ -36,7 +36,7 @@ static double dp_dt(const double &t, const double &w);
   describing pressure evolution over time.
   note: true dP/dt = dp/dt * P0/TIME0 */
 
-static double cp_moist(const double &qv, const double &qc);
+static double moist_specifc_heat(const double &qv, const double &qc);
 /* effective specific heat capacity of moist parcel
   of air (dry + water vapour + liquid water) */
 

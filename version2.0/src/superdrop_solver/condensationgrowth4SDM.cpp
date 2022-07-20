@@ -8,7 +8,7 @@
 
 #include "condensationgrowth4SDM.hpp"
 
-double pv2qv(const double pv, const double p)
+double vapourpressure_2_massmixratio(const double pv, const double p)
 /* Calculate mass mixing ratio
   qv = m_v/m_dry = rho_v/rho_dry
   given vapour pressure pv = p_v/p_tot. */
@@ -16,7 +16,7 @@ double pv2qv(const double pv, const double p)
   return dlc::Mr_ratio * pv / (p - pv);
 }
 
-double cp_moist(const double qv, const double qc)
+double moist_specifc_heat(const double qv, const double qc)
 /* (dimensionless) specific heat 
   capacity of moist parcel of air */
 {
@@ -79,7 +79,7 @@ void condensation_onto_superdroplets(const double delt, double &p,
   
   delqc_k = tot_delrhov / dlc::Rho_dry; // change to temp, qv and qc as a result of
   delqv_k = -(delqc_k);                 //    condensation at kth (small) timestep
-  deltemp_k = (dlc::Latent_v / cp_moist(qv, qc)) * (delqc_k);
+  deltemp_k = (dlc::Latent_v / moist_specifc_heat(qv, qc)) * (delqc_k);
 
   /* update to temp, qv and qc given timestep delt */
   temp += deltemp_k;

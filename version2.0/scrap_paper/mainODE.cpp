@@ -20,7 +20,7 @@ using namespace std;
 
 /* ------------------------------- Helper Functions ------------------------------- */
 
-double pv2qv(const double pv, const double p)
+double vapourpressure_2_massmixratio(const double pv, const double p)
 	/* Calculate mass mixing ratio
 	qv = m_v/m_dry = rho_v/rho_dry
 	given vapour pressure pv = p_v/p_tot. */
@@ -82,7 +82,7 @@ int main(){
   const double p_init = init::P_INIT/dlc::P0;                 // initial (dimensionless) kinetics
   const double temp_init = init::TEMP_INIT/dlc::TEMP0;
   const double pv_i = saturation_pressure(temp_init)*init::relh_init/100;
-  const double qv_init = pv2qv(pv_i, p_init);                 // Initial qv from relative humidity
+  const double qv_init = vapourpressure_2_massmixratio(pv_i, p_init);                 // Initial qv from relative humidity
   const double qc_init = init::qc_init;
 
 
