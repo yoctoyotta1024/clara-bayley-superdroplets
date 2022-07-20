@@ -25,7 +25,7 @@ const std::string solution_csv = "sol.csv";               //.csv filename for in
 
 /* Model Settings */
 const bool doThermo = true; // enable condensational growth of superdroplets
-const bool doCond = true;    // enable condensational growth of superdroplets
+const bool doCond = false;    // enable condensational growth of superdroplets
 const bool doColl = true;   // enable collisions of superdroplets
 
 /* initial parcel conditions */
@@ -37,7 +37,7 @@ const double qc_init = 0;        // initial liquid water content []
 /* droplet init params. Note: Superdroplet inital eps, r0
 and m_sol data is made using python "createSDinitcsv.py" */
 //const int NSUPERS = 8192; // max. no. distinct superdrop objects in array
-const int NSUPERS = 10;
+const int NSUPERS = 2000;
 const double DROPVOL = 1e6; // volume of parcel occupied by superdroplets [m^3]
 const double iRho_l = dlc::Rho_l;
 const double iRho_sol = dlc::Rho_sol;
