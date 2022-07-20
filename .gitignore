@@ -1,0 +1,10 @@
+*.log
+__pychache__
+*.png
+*.csv
+*.zip
+.vscode
+.ipynb_checkpoints
+.DS_Store
+version2.0/build
+version2.0/plotting_notebooks/__pycache__
