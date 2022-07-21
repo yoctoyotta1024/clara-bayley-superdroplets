@@ -17,9 +17,9 @@ sys.path.insert(0, os.path.abspath('../..'))
 
 # -- Project information -----------------------------------------------------
 
-project = 'mypackage'
-copyright = '2022, mypackage developers'
-author = 'mypackage developers'
+project = 'version2.0'
+copyright = '2022, Clara Bayley & Other Package Developers'
+author = 'Clara Bayley'
 
 
 # -- General configuration ---------------------------------------------------
