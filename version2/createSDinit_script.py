@@ -2,9 +2,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import csv
 
-#from common_pyfuncs import read_cpp_into_floats, logr_distribution, linear_twinax
 
-import createSDinit_src
+#import createSDinit_src
 
 
 plt.rcParams.update({'font.size': 14})
