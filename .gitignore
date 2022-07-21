@@ -6,6 +6,8 @@ __pychache__
 .vscode
 .ipynb_checkpoints
 .DS_Store
+version1.0_OG/__pycache__
+version1.0_OG/bin
 version2.0/build
 version2.0/.vscode
 version2.0/plotting_notebooks/__pycache__
