@@ -1,9 +1,11 @@
 Functions
 =========
 
-.. automodule:: version2
+.. automodule:: version2.createSDinit_src
 
 .. autosummary::
    :toctree: _autosummary
 
-   add
+   read_cpp_into_floats
+   logr_distribution
+   linear_twinax

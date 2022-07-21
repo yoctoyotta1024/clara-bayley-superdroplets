@@ -35,7 +35,8 @@ const double relh_init = 60;     // initial relative humidity (%)
 const double qc_init = 0;        // initial liquid water content []
 
 /* droplet init params. Note: Superdroplet inital eps, r0
-and m_sol data is made using python "createSDinitcsv.py" */
+and m_sol data is made using python "createSDinit_script.py" */
+
 //const int NSUPERS = 8192; // max. no. distinct superdrop objects in array
 const int NSUPERS = 2000;
 const double DROPVOL = 1e6; // volume of parcel occupied by superdroplets [m^3]
