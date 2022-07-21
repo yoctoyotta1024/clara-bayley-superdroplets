@@ -8,6 +8,7 @@ __pychache__
 .DS_Store
 rk4_for_condensation_odes/build/CMakeFiles
 rk4_for_condensation_odes/.vscode
+rk4_for_condensation_odes/__pycache__
 version1.0_OG/__pycache__
 version1.0_OG/bin
 version2.0/build
