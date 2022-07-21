@@ -2,13 +2,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 import csv
 
-
-import createSDinit_src
-
+import src.convert_cxx_2_pyfloats as cxx2py
+import src.volexponential as volexp
+import src.lognormal as lognorm
+import src.plot_lnr_distrib as pltlnr
 
 plt.rcParams.update({'font.size': 14})
-
-
 
 ##############################################
 ### droplet properties for initialisation ### 
@@ -31,7 +30,7 @@ use_volexponential = True
 if use_volexponential:
   r_a             = 30.531e-6                   # [m] radius of peak to volume dist
   n_a             = 2**(23)                     # [m^-3] total no. concentration of real droplets          
-
+  rho_expo        = 1
 
 if use_volexponential == use_lognormal:
   raise ValueError("same boolean for use_volexponential and use_lognormal")
@@ -42,8 +41,8 @@ if use_volexponential == use_lognormal:
 ###  constants.hpp and init.hpp FOR ODE SOLVER!!  ###
 
 ### read in constants from .hpp files
-CONSTS, notfloats = createSDinit_src.read_cpp_into_floats("./claras_SDconstants.hpp")
-INITS, notfloats2 = createSDinit_src.read_cpp_into_floats("./claras_SDinit.hpp") 
+CONSTS, notfloats = cxx2py.read_cpp_into_floats("./claras_SDconstants.hpp")
+INITS, notfloats2 = cxx2py.read_cpp_into_floats("./claras_SDinit.hpp") 
 INITS["nsupers"] = int(INITS["NSUPERS"])
 
 RGAS_DRY   = CONSTS["RGAS_UNIV"]/CONSTS["MR_DRY"]  # specific gas constant for dry air [J/Kg/K]      <-- used in ideal gas equation for hydrostsic rather than moist??
@@ -67,65 +66,6 @@ print("---------------------------------------------")
 
 
 
-#############################################
-###      functions for getting droplet    ###
-###          radii distribution           ###
-
-def dimless_lnr_dist(rspan, nbins, n_a, mu, sig):
-  ''' returns 'nbins' no. of samples from 
-  lognormal distribution with even spacing
-  in lnr space between ln(r[0]) and ln(rs[1])'''
-  
-  edgs = np.linspace(np.log(rspan[0]), np.log(rspan[1]), nbins+1)        # edges to linearly spaced lnr bins
-  wdths = edgs[1:]- edgs[:-1]                                      # lnr bin widths
-  lnr = (edgs[1:]+edgs[:-1])/2                                     # lnr bin centres
-  lnnorm = lnnormal_dist(np.e**lnr, n_a, mu, sig)                  # lognormal values
-
-  ### make radii and no. concentrations dimensionless
-  lnr = lnr - np.log(R0)                                           
-  edgs = edgs - np.log(R0)
-  wdths = edgs[1:]- edgs[:-1]                                     # lnr bin widths
-  eps = np.asarray([int(n) for n in lnnorm*wdths*VOL])     # dimless multiplicities from lognorm dist
-  
-
-  return np.e**(lnr), eps, wdths, edgs
-
-
-
-def lnnormal_dist(r, n_a, mu, sig):
-  ''' return number concentration (n [m^-3])
-  of particles with radius r in bin of unit length 
-  on logarithmic scale based on monomodal 
-  lognormal distribution. ie. No particles per cm"^-3
-  in bin at radius r of width delta(lnr), n =
-  dn_dlnr * delta(lnr)'''
-  
-  sigtilda = np.log(sig)
-  mutilda = np.log(mu)
-  norm = n_a/(np.sqrt(2*np.pi)*sigtilda)
-  exponent = -(np.log(r)-mutilda)**2/(2*sigtilda**2)
-  
-  dn_dlnr = norm*np.exp(exponent)                                 # eq.5.8 [lohmann intro 2 clouds]
-  
-  
-  return dn_dlnr
-
-
-
-def dimless_randomexpo_dist(nsupers, VOL, n_a, r_a, rho=1):
-  ''' return nsupers superdroplets with eps = n_a*vol/nsupers
-  and radius taken from random rample of exponential volume
-  (or mass) distribution '''
-  
-  eps = np.full(nsupers, n_a*VOL/nsupers)
-
-  vol_a = 3/4*np.pi*rho*r_a**3
-  vols = np.random.exponential(vol_a, nsupers)
-  r = (4*vols/(3*np.pi*rho))**(1/3)
- 
-  return r/R0, eps
-#############################################
-
 
 
 
@@ -137,7 +77,7 @@ if use_lognormal:
   ### each superdroplet is different radius with 
   ### epsilon determined from lognormal distribution
   for d in range(len(mus)):
-    r0, eps1 = dimless_lnr_dist(rspan, nsupers, n_as[d], mus[d], sigs[d])[0:2]
+    r0, eps1 = lognorm.dimless_lnr_dist(rspan, nsupers, n_as[d], mus[d], sigs[d])[0:2]
 
     if d==0:
       eps = eps1
@@ -151,7 +91,8 @@ elif use_volexponential:
   ### each superdroplet has same epsilon. Radii 
   ### superdroplets is random sample of exponential
   ### volume (or mass) distribution
-  r0, eps = dimless_randomexpo_dist(nsupers, VOL, n_a, r_a)
+  r0, eps = volexp.dimless_randomexpo_dist(nsupers, 
+                  VOL, n_a, r_a, rho=rho_expo, R0=R0)
   m_sol = Rho_sol*4/3*np.pi*r0**3                   # assuming initially dry areosol droplets (dimless mass_solute)
 
 print(r0[0], m_sol[0])
@@ -197,15 +138,15 @@ elif use_volexponential:
   rspan = [np.amin(r0*R0), np.amax(r0*R0)]
   #wghts = [1]*nsupers
 wghts = eps/VOL
-createSDinit_src.linear_twinax(ax, np.log(r0*R0), wghts)
-hist, hedgs = createSDinit_src.logr_distribution(rspan, nbins, r0*R0, wghts, ax=ax, 
+pltlnr.linear_twinax(ax, np.log(r0*R0), wghts)
+hist, hedgs = pltlnr.logr_distribution(rspan, nbins, r0*R0, wghts, ax=ax, 
   ylab="No. Conc. Real Droplets /m$^{-3}$", lab="initial superdroplets", 
   c='C0', perlnR=False, smooth=False)
        
 if use_lognormal:
   # plot lognormal curves with x10 more bins for reference
   for d in range(len(mus)):
-      pltr, plteps, pltwdths = dimless_lnr_dist(rspan,                     
+      pltr, plteps, pltwdths = lognorm.dimless_lnr_dist(rspan,                     
                       nsupers*10, n_as[d], mus[d], sigs[d])[0:3]
       ax.plot(np.log(pltr)+np.log(R0), plteps*10/VOL, 
                       color='C'+str(d+1), label='lognormal '+str(d)) 
@@ -235,8 +176,8 @@ if use_volexponential:
   mass += 4/3.0*np.pi*((r0*R0)**3)*CONSTS["RHO_L"]                                 
   wghts = eps*mass/VOL
 
-  ax2 = createSDinit_src.linear_twinax(ax, np.log(r0*R0), wghts)
-  hist, hedgs = createSDinit_src.logr_distribution(rspan, nbins, r0*R0, wghts, ax=ax, 
+  ax2 = pltlnr.linear_twinax(ax, np.log(r0*R0), wghts)
+  hist, hedgs = pltlnr.logr_distribution(rspan, nbins, r0*R0, wghts, ax=ax, 
     ylab="g(lnR) /Kg m$^{-3}$ / unit lnR", lab="initial superdroplets", 
     c='C0', perlnR=True, smooth=False)
         
