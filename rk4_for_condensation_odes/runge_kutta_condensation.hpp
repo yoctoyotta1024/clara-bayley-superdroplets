@@ -11,10 +11,10 @@ runge kuuta 4th order method */
 #include <iostream>
 #include <math.h>
 
-#include "../version2.0/claras_SDinit.hpp"
-#include "../version2.0/claras_SDconstants.hpp"
-#include "../version2.0/src/superdrop_solver/common2allsuperdrops.hpp"
-#include "../version2.0/src/superdrop_solver/superdrop.hpp"
+#include "../version2/claras_SDinit.hpp"
+#include "../version2/claras_SDconstants.hpp"
+#include "../version2/src/superdrop_solver/common2allsuperdrops.hpp"
+#include "../version2/src/superdrop_solver/superdrop.hpp"
 
 // using namespace std;
 namespace dlc = dimless_constants;

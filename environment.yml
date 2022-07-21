@@ -1,4 +1,4 @@
-name: version2.0
+name: version2
 dependencies:
     - python>=3.9
     - pytest

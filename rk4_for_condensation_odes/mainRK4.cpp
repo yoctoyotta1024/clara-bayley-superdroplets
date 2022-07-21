@@ -8,17 +8,17 @@ runge kuuta 4th order method */
 #include <math.h>
 
 /* coupled model parameter & input files */
-#include "../version2.0/claras_SDinit.hpp"
-#include "../version2.0/claras_SDconstants.hpp"
+#include "../version2/claras_SDinit.hpp"
+#include "../version2/claras_SDconstants.hpp"
 
 #include "runge_kutta_condensation.hpp"
 
 /* Superdroplet Model (SDM) files */
-#include "../version2.0/src/superdrop_solver/common2allsuperdrops.hpp"
-#include "../version2.0/src/superdrop_solver/superdrop.hpp"
-#include "../version2.0/src/superdrop_solver/readwritefuncs4SDM.hpp"
-//#include "../version2.0/src/superdrop_solver/collisions4SDM.hpp"
-//#include "../version2.0/src/superdrop_solver/condensationgrowth4SDM.hpp"
+#include "../version2/src/superdrop_solver/common2allsuperdrops.hpp"
+#include "../version2/src/superdrop_solver/superdrop.hpp"
+#include "../version2/src/superdrop_solver/readwritefuncs4SDM.hpp"
+//#include "../version2/src/superdrop_solver/collisions4SDM.hpp"
+//#include "../version2/src/superdrop_solver/condensationgrowth4SDM.hpp"
 
 // using namespace std;
 // namespace dlc = dimless_constants;
@@ -28,13 +28,13 @@ runge kuuta 4th order method */
 int main()
 {
 
-  /* ---------- same as main() in ../version2.0/src/ -------------- */
+  /* ---------- same as main() in ../version2/src/ -------------- */
   /* files to write output data to */
-  const std::string initdrops_csv2 = "../../version2.0/dimlessSDinit.csv"; //.csv filename for initialisation of superdrops
+  const std::string initdrops_csv2 = "../../version2/dimlessSDinit.csv"; //.csv filename for initialisation of superdrops
 
   ofstream yfile, sdfile; // files to write superdroplet and ODE output data to
-  string setupfiles[] = {"../../version2.0/claras_SDinit.hpp",
-                         "../../version2.0/claras_SDconstants.hpp"}; // files to copy to setup_txt file
+  string setupfiles[] = {"../../version2/claras_SDinit.hpp",
+                         "../../version2/claras_SDconstants.hpp"}; // files to copy to setup_txt file
 
   /* variables for time-stepping model */
   const int nout = init::nout;                             // number of output times

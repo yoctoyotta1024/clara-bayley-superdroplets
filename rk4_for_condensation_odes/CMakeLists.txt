@@ -13,9 +13,9 @@ include_directories(${PROJECT_SOURCE_DIR})
 
 # add executables to project (only one main() function!)
 add_executable("${PROJECT_NAME}" "mainRK4.cpp"
-"../../version2.0/src/superdrop_solver/superdrop.cpp"
-"../../version2.0/src/superdrop_solver/common2allsuperdrops.cpp" 
-"../../version2.0/src/superdrop_solver/readwritefuncs4SDM.cpp") 
-#"../../version2.0/src/superdrop_solver/collisions4SDM.cpp" 
-#"../../version2.0/src/superdrop_solver/condensationgrowth4SDM.cpp" 
+"../../version2/src/superdrop_solver/superdrop.cpp"
+"../../version2/src/superdrop_solver/common2allsuperdrops.cpp" 
+"../../version2/src/superdrop_solver/readwritefuncs4SDM.cpp") 
+#"../../version2/src/superdrop_solver/collisions4SDM.cpp" 
+#"../../version2/src/superdrop_solver/condensationgrowth4SDM.cpp" 
 

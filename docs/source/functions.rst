@@ -1,7 +1,7 @@
 Functions
 =========
 
-.. automodule:: mypackage
+.. automodule:: version2
 
 .. autosummary::
    :toctree: _autosummary
