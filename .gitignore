@@ -6,6 +6,7 @@ __pychache__
 .vscode
 .ipynb_checkpoints
 .DS_Store
+rk4_for_condensation_odes/build/CMakeFiles
 version1.0_OG/__pycache__
 version1.0_OG/bin
 version2.0/build
