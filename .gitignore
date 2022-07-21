@@ -6,6 +6,8 @@ __pychache__
 .vscode
 .ipynb_checkpoints
 .DS_Store
+__pycache__
+tests/__pycache__
 rk4_for_condensation_odes/build/CMakeFiles
 rk4_for_condensation_odes/.vscode
 rk4_for_condensation_odes/__pycache__
