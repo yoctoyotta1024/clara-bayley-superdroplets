@@ -1,6 +1,0 @@
-make --dry-run --always-make --keep-going --print-directory
-make: Entering directory `/Users/yoctoyotta1024/Documents/spring2022/clara-bayley-superdroplets/version2.0'
-make: Leaving directory `/Users/yoctoyotta1024/Documents/spring2022/clara-bayley-superdroplets/version2.0'
- 
-make: *** No targets specified and no makefile found.  Stop.
-
