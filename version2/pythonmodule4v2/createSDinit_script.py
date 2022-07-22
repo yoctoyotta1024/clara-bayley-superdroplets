@@ -6,6 +6,7 @@ import src.convert_cxx_2_pyfloats as cxx2py
 import src.volexponential as volexp
 import src.lognormal as lognorm
 import src.plot_lnr_distrib as pltlnr
+import src.generic_axfuncs as axfuncs
 
 plt.rcParams.update({'font.size': 14})
 
@@ -138,7 +139,7 @@ elif use_volexponential:
   rspan = [np.amin(r0*R0), np.amax(r0*R0)]
   #wghts = [1]*nsupers
 wghts = eps/VOL
-pltlnr.linear_twinax(ax, np.log(r0*R0), wghts)
+axfuncs.linear_twinax(ax, np.log(r0*R0), wghts)
 hist, hedgs = pltlnr.logr_distribution(rspan, nbins, r0*R0, wghts, ax=ax, 
   ylab="No. Conc. Real Droplets /m$^{-3}$", lab="initial superdroplets", 
   c='C0', perlnR=False, smooth=False)
@@ -176,7 +177,7 @@ if use_volexponential:
   mass += 4/3.0*np.pi*((r0*R0)**3)*CONSTS["RHO_L"]                                 
   wghts = eps*mass/VOL
 
-  ax2 = pltlnr.linear_twinax(ax, np.log(r0*R0), wghts)
+  ax2 = axfuncs.linear_twinax(ax, np.log(r0*R0), wghts)
   hist, hedgs = pltlnr.logr_distribution(rspan, nbins, r0*R0, wghts, ax=ax, 
     ylab="g(lnR) /Kg m$^{-3}$ / unit lnR", lab="initial superdroplets", 
     c='C0', perlnR=True, smooth=False)

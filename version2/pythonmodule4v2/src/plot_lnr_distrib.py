@@ -45,28 +45,6 @@ def logr_distribution(rspan, nbins, data, wghts,
   return hist, hedgs
 
 
-
-
-def linear_twinax(ax, lnr, eps):
-    ''' linear x axis for lognormal 
-    radius distribution plots'''
-     
-    axb = ax.twiny()
-   
-    axb.plot(np.e**lnr*1e6, eps, alpha=0)
-    axb.set_xscale('log')
-    axb.set_xlabel('radius, r /\u03BCm)')
-
-    axb.xaxis.tick_bottom() 
-    axb.xaxis.set_label_position('bottom') 
-
-    # xlims = [np.exp(l)*1e6 for l in ax.get_xlim()]
-    # axb.set_xlim(xlims)
-
-    return axb
-
-
-
 def gaussian_kernel_smoothing(hist, hcens, sig):
 
     for h in range(len(hist)):

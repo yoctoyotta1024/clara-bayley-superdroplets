@@ -3,7 +3,7 @@ import numpy as np
 
 ######## function(s) for converting c++ values into python ones  ########
 
-def read_cpp_into_floats(filename):
+def read_cpp_into_floats(filename, printout=True):
   """make dictionary of value: float for 
   doubles and ints in c++ file. Also make
   dictionary of notfloats for values that
@@ -38,13 +38,60 @@ def read_cpp_into_floats(filename):
         except ValueError:
           notfloats[symbol] = line[ind1+2:ind2]
   
-  print("---- Constants read from ", filename, "-----")
-  for c in constants:
-    print(c, "=", constants[c])
-  print("---------------------------------------------")
-  print("---- Not floats read from ", filename, "-----")
-  for st in notfloats:
-    print(st, "=", notfloats[st])
-  print("---------------------------------------------")
+  if printout:
+    print_dict_statement(filename, "constants (CONSTS)", constants)
+    print_dict_statement(filename, "not floats", notfloats)
+
 
   return constants, notfloats
+
+
+
+def print_dict_statement(filename, dictname, dict):
+
+  print("\n---- "+dictname+" from ", filename, "-----")
+  for c in dict:
+    print(c, "=", dict[c])
+  print("---------------------------------------------")
+  
+
+
+def inits_dict(CONSTS, printout=True):
+  '''return INITS dictionary containing
+    some specific key,values from 
+    CONSTS dictionary'''
+
+  INITS = {
+    "iW"      : CONSTS["iW"],
+    "DROPVOL" : CONSTS["DROPVOL"],
+    "nsupers" : int(CONSTS["NSUPERS"]),
+  }
+  
+  if printout:
+    print_dict_statement("CONSTS dict", "initial conditions (INITS)", INITS)
+
+  return INITS
+
+
+
+
+def mconsts_dict(CONSTS, printout=True):
+  '''return MCONSTS dictionary containing
+    some derived key,values from values in
+    CONSTS dictionary'''
+
+  MCONSTS = {
+    "RGAS_DRY"   : CONSTS["RGAS_UNIV"]/CONSTS["MR_DRY"],
+    "RGAS_V"     : CONSTS["RGAS_UNIV"]/CONSTS["MR_WATER"],
+    "CP0"        : CONSTS["CP_DRY"],
+    "MR0"        : CONSTS["MR_DRY"],
+    "Mr_ratio"   : CONSTS["MR_WATER"]/CONSTS["MR_DRY"],
+  }
+  MCONSTS["RHO0"]       = CONSTS["P0"]/(MCONSTS["RGAS_DRY"]*CONSTS["TEMP0"])
+
+  if printout:
+    print_dict_statement("CONSTS dict", "derived constants (MCONSTS)", MCONSTS)
+
+  return MCONSTS
+
+
