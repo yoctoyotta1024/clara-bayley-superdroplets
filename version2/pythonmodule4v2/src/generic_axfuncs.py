@@ -1,6 +1,15 @@
 ### Generic plotting functions usually for subplot axes
 import numpy as np
+import matplotlib.pyplot as plt
 
+
+def save_figure(savedir, savename):
+
+    plt.savefig(savedir+savename, 
+            dpi=400, bbox_inches="tight", 
+            facecolor='w', format="png")
+
+    
 
 def linear_twinax(ax, lnr, eps):
     ''' linear x axis for lognormal 
@@ -22,12 +31,15 @@ def linear_twinax(ax, lnr, eps):
 
 
 
-def axplt(ax, x, y, xlab=None, ylab=None, lab=None, c=0, l='-'):
+def axplt(ax, x, y, 
+    xlab=None, ylab=None, 
+    lab="_nolegend_", c=0, l='-'):
+    
     if type(c)==type(0):
         c= 'C'+str(c)
+    
     ax.plot(x,y, label=lab, color=c, linestyle=l)
     ax.set_xlabel(xlab)
     ax.set_ylabel(ylab)
-
 
 

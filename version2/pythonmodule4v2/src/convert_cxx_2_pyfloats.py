@@ -3,7 +3,7 @@ import numpy as np
 
 ######## function(s) for converting c++ values into python ones  ########
 
-def read_cpp_into_floats(filename, printout=True):
+def read_cpp_into_floats(filename, is_print=True):
   """make dictionary of value: float for 
   doubles and ints in c++ file. Also make
   dictionary of notfloats for values that
@@ -38,7 +38,7 @@ def read_cpp_into_floats(filename, printout=True):
         except ValueError:
           notfloats[symbol] = line[ind1+2:ind2]
   
-  if printout:
+  if is_print:
     print_dict_statement(filename, "constants (CONSTS)", constants)
     print_dict_statement(filename, "not floats", notfloats)
 
@@ -52,11 +52,11 @@ def print_dict_statement(filename, dictname, dict):
   print("\n---- "+dictname+" from ", filename, "-----")
   for c in dict:
     print(c, "=", dict[c])
-  print("---------------------------------------------")
+  print("---------------------------------------------\n")
   
 
 
-def inits_dict(CONSTS, printout=True):
+def inits_dict(CONSTS, is_print=True):
   '''return INITS dictionary containing
     some specific key,values from 
     CONSTS dictionary'''
@@ -67,15 +67,14 @@ def inits_dict(CONSTS, printout=True):
     "nsupers" : int(CONSTS["NSUPERS"]),
   }
   
-  if printout:
+  if is_print:
     print_dict_statement("CONSTS dict", "initial conditions (INITS)", INITS)
 
   return INITS
 
 
 
-
-def mconsts_dict(CONSTS, printout=True):
+def mconsts_dict(CONSTS, is_print=True):
   '''return MCONSTS dictionary containing
     some derived key,values from values in
     CONSTS dictionary'''
@@ -89,7 +88,7 @@ def mconsts_dict(CONSTS, printout=True):
   }
   MCONSTS["RHO0"]       = CONSTS["P0"]/(MCONSTS["RGAS_DRY"]*CONSTS["TEMP0"])
 
-  if printout:
+  if is_print:
     print_dict_statement("CONSTS dict", "derived constants (MCONSTS)", MCONSTS)
 
   return MCONSTS

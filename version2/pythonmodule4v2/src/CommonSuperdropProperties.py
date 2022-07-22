@@ -19,15 +19,17 @@ class CommonSuperdropProperties():
     self.RHO_SOL = RHO_SOL                           # density of (dry) solute [Kg/m^3]
     self.MR_SOL = MR_SOL                             # Mr of solute [g/mol]
     self.IONIC = IONIC                               # degree ionic dissociation (van't Hoff factor)
-    
-    print("---- Superdrop Properties -----")
+  
+
+  def print_properties(self):
+    print("\n---- Superdrop Properties -----")
     print("nsupers =", self.nsupers)
     print("parcel volume =", self.VOL, "m^3")
     print("RHO_L =", self.RHO_L, "Kg/m^3")
     print("RHO_SOL =", self.RHO_SOL, "Kg/m^3")
     print("MR_SOL =", self.MR_SOL, "Kg/mol")
     print("IONIC =", self.IONIC)
-    print("-------------------------------")
+    print("-------------------------------\n")
  
 
 

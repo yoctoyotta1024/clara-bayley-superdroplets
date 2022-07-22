@@ -5,7 +5,7 @@ import csv
 import src.convert_cxx_2_pyfloats as cxx2py
 import src.volexponential as volexp
 import src.lognormal as lognorm
-import src.plot_lnr_distrib as pltlnr
+import src.plot_lnRdistrib as pltlnr
 import src.generic_axfuncs as axfuncs
 
 plt.rcParams.update({'font.size': 14})
